@@ -3,8 +3,8 @@ import './globals.css'
 import Navbar from '@/components/Navbar'
 
 export const metadata: Metadata = {
-  title: 'Rap Map Morocco',
-  description: 'La carte interactive du rap marocain',
+ title: '9ri9iBET',
+description: 'La plateforme de paris sur le rap marocain',
 }
 
 export default function RootLayout({

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -19,6 +20,7 @@ export default function Navbar() {
   const [loading, setLoading] = useState(false)
   const [user, setUser] = useState<any>(null)
   const [balance, setBalance] = useState<number | null>(null)
+  const pathname = usePathname()
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -39,7 +41,6 @@ export default function Navbar() {
   const handleSubmit = async () => {
     setLoading(true)
     setError('')
-
     if (isLogin) {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) setError(error.message)
@@ -61,107 +62,75 @@ export default function Navbar() {
     setBalance(null)
   }
 
+  const links = [
+    { label: 'Carte', href: '/' },
+    { label: 'Rappers', href: '/bets' },
+    { label: 'Fantasy', href: '/fantasy' },
+    { label: 'Profil', href: '/profile' },
+  ]
+
   return (
     <>
       <nav style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        height: '60px',
-        background: 'rgba(8,8,12,0.95)',
-        backdropFilter: 'blur(20px)',
+        position: 'fixed', top: 0, left: 0, right: 0, height: '60px',
+        background: 'rgba(8,8,12,0.95)', backdropFilter: 'blur(20px)',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
-        display: 'flex',
-        alignItems: 'center',
-        padding: '0 24px',
-        zIndex: 1000,
-        gap: '32px',
+        display: 'flex', alignItems: 'center', padding: '0 24px', zIndex: 1000, gap: '32px',
       }}>
         <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontSize: '20px' }}>🎤</span>
           <span style={{ fontWeight: 800, fontSize: '16px', color: 'white', letterSpacing: '-0.5px' }}>
-            RAP MAP <span style={{ color: '#ff6b00' }}>MOROCCO</span>
+            9ri9i<span style={{ color: '#ff6b00' }}>BET</span>
           </span>
         </Link>
 
         <div style={{ display: 'flex', gap: '24px', marginLeft: '16px' }}>
-          {['Rappers', 'Studios', 'Videos', 'Underground'].map(item => (
-            <a key={item} href="#" style={{
-              color: item === 'Rappers' ? '#ff6b00' : 'rgba(255,255,255,0.5)',
-              textDecoration: 'none',
-              fontSize: '14px',
-              fontWeight: 500,
-              borderBottom: item === 'Rappers' ? '2px solid #ff6b00' : 'none',
-              paddingBottom: '2px',
-            }}>{item}</a>
-          ))}
+          {links.map(item => {
+            const active = pathname === item.href
+            return (
+              <Link key={item.label} href={item.href} style={{
+                color: active ? '#ff6b00' : 'rgba(255,255,255,0.5)',
+                textDecoration: 'none', fontSize: '14px', fontWeight: 500,
+                borderBottom: active ? '2px solid #ff6b00' : '2px solid transparent',
+                paddingBottom: '2px', transition: 'color 0.2s',
+              }}>{item.label}</Link>
+            )
+          })}
         </div>
 
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '16px' }}>
           {user && balance !== null && (
             <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '6px 14px',
-              background: 'rgba(255,107,0,0.1)',
-              border: '1px solid rgba(255,107,0,0.2)',
-              borderRadius: '20px',
+              display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 14px',
+              background: 'rgba(255,107,0,0.1)', border: '1px solid rgba(255,107,0,0.2)', borderRadius: '20px',
             }}>
               <span style={{ fontSize: '16px' }}>💊</span>
               <span style={{ fontWeight: 700, fontSize: '14px', color: '#ff6b00' }}>{balance} Rivo</span>
             </div>
           )}
-
           {user ? (
             <button onClick={handleLogout} style={{
-              padding: '8px 16px',
-              borderRadius: '20px',
-              border: '1px solid rgba(255,255,255,0.1)',
-              background: 'transparent',
-              color: 'rgba(255,255,255,0.5)',
-              cursor: 'pointer',
-              fontSize: '13px',
+              padding: '8px 16px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)',
+              background: 'transparent', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', fontSize: '13px',
             }}>Déconnexion</button>
           ) : (
             <button onClick={() => setShowModal(true)} style={{
-              padding: '8px 20px',
-              borderRadius: '20px',
-              border: 'none',
-              background: 'linear-gradient(135deg, #ff6b00, #ff9500)',
-              color: 'white',
-              cursor: 'pointer',
-              fontSize: '13px',
-              fontWeight: 700,
-              boxShadow: '0 0 20px rgba(255,107,0,0.3)',
+              padding: '8px 20px', borderRadius: '20px', border: 'none',
+              background: 'linear-gradient(135deg, #ff6b00, #ff9500)', color: 'white',
+              cursor: 'pointer', fontSize: '13px', fontWeight: 700, boxShadow: '0 0 20px rgba(255,107,0,0.3)',
             }}>Se connecter</button>
           )}
         </div>
       </nav>
 
-      {/* Modal Auth */}
       {showModal && (
-        <div
-          onClick={(e) => e.target === e.currentTarget && setShowModal(false)}
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.8)',
-            backdropFilter: 'blur(8px)',
-            zIndex: 2000,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
+        <div onClick={(e) => e.target === e.currentTarget && setShowModal(false)} style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)',
+          zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
           <div style={{
-            width: '400px',
-            background: 'rgba(15,15,25,0.98)',
-            border: '1px solid rgba(255,107,0,0.2)',
-            borderRadius: '24px',
-            padding: '40px',
-            boxShadow: '0 0 60px rgba(255,107,0,0.15)',
+            width: '400px', background: 'rgba(15,15,25,0.98)', border: '1px solid rgba(255,107,0,0.2)',
+            borderRadius: '24px', padding: '40px', boxShadow: '0 0 60px rgba(255,107,0,0.15)',
           }}>
             <div style={{ textAlign: 'center', marginBottom: '28px' }}>
               <h2 style={{ fontSize: '22px', fontWeight: 800, marginBottom: '6px' }}>
@@ -172,22 +141,11 @@ export default function Navbar() {
               </p>
             </div>
 
-            <div style={{
-              display: 'flex',
-              background: 'rgba(255,255,255,0.04)',
-              borderRadius: '12px',
-              padding: '4px',
-              marginBottom: '20px',
-            }}>
+            <div style={{ display: 'flex', background: 'rgba(255,255,255,0.04)', borderRadius: '12px', padding: '4px', marginBottom: '20px' }}>
               {['Connexion', 'Inscription'].map((tab, i) => (
                 <button key={tab} onClick={() => setIsLogin(i === 0)} style={{
-                  flex: 1,
-                  padding: '10px',
-                  borderRadius: '10px',
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontWeight: 600,
+                  flex: 1, padding: '10px', borderRadius: '10px', border: 'none', cursor: 'pointer',
+                  fontSize: '14px', fontWeight: 600,
                   background: isLogin === (i === 0) ? '#ff6b00' : 'transparent',
                   color: isLogin === (i === 0) ? 'white' : 'rgba(255,255,255,0.4)',
                 }}>{tab}</button>
@@ -208,16 +166,9 @@ export default function Navbar() {
             {error && <p style={{ color: '#ff4444', fontSize: '13px', marginBottom: '12px', textAlign: 'center' }}>{error}</p>}
 
             <button onClick={handleSubmit} disabled={loading} style={{
-              width: '100%',
-              padding: '14px',
-              borderRadius: '12px',
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: '15px',
-              fontWeight: 700,
-              background: 'linear-gradient(135deg, #ff6b00, #ff9500)',
-              color: 'white',
-              boxShadow: '0 4px 20px rgba(255,107,0,0.3)',
+              width: '100%', padding: '14px', borderRadius: '12px', border: 'none', cursor: 'pointer',
+              fontSize: '15px', fontWeight: 700, background: 'linear-gradient(135deg, #ff6b00, #ff9500)',
+              color: 'white', boxShadow: '0 4px 20px rgba(255,107,0,0.3)',
             }}>
               {loading ? '...' : isLogin ? 'Se connecter' : 'Créer mon compte'}
             </button>

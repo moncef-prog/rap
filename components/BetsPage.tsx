@@ -30,6 +30,7 @@ interface Rapper {
   city: string
   category: string
   activity_score: number
+  profile_image_url?: string
 }
 
 interface Props {
@@ -43,6 +44,12 @@ function BetsPage({ rappers }: Props) {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const [activeTab, setActiveTab] = useState('Top Entries')
+  const [search, setSearch] = useState('')
+
+  const filteredRappers = rappers.filter(r =>
+    r.name.toLowerCase().includes(search.toLowerCase()) ||
+    r.city.toLowerCase().includes(search.toLowerCase())
+  )
 
   const multiplier = (selectedRapper.activity_score / 100 + 0.8).toFixed(1)
 
@@ -86,39 +93,79 @@ function BetsPage({ rappers }: Props) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
             <div style={{ background: 'rgba(15,15,25,0.95)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '20px', overflow: 'hidden' }}>
-              <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between' }}>
-                <h2 style={{ fontSize: '16px', fontWeight: 700 }}>🔥 Hot Bets</h2>
-                <span style={{ fontSize: '12px', color: '#ff6b00', cursor: 'pointer' }}>Voir tout →</span>
-              </div>
-              {rappers.map((rapper, i) => {
-                const color = categoryColors[rapper.category] ?? '#ff6b00'
-                const gain = [1250, 850, 400, 200][i] ?? 150
-                return (
-                  <div key={rapper.id} onClick={() => setSelectedRapper(rapper)}
+              <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                  <h2 style={{ fontSize: '16px', fontWeight: 700 }}>🔥 Hot Bets</h2>
+                  <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)' }}>{filteredRappers.length} rappeurs</span>
+                </div>
+                {/* Barre de recherche */}
+                <div style={{ position: 'relative' }}>
+                  <span style={{
+                    position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)',
+                    fontSize: '16px', pointerEvents: 'none',
+                  }}>🔍</span>
+                  <input
+                    placeholder="Recherche un rappeur ou une ville..."
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
                     style={{
-                      display: 'flex', alignItems: 'center', gap: '16px', padding: '16px 24px', cursor: 'pointer',
-                      borderBottom: i < rappers.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
-                      background: selectedRapper.id === rapper.id ? 'rgba(255,107,0,0.05)' : 'transparent',
+                      width: '100%', padding: '12px 16px 12px 42px',
+                      borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)',
+                      background: 'rgba(255,255,255,0.04)', color: 'white',
+                      fontSize: '14px', outline: 'none', boxSizing: 'border-box',
                     }}
-                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,107,0,0.05)'}
-                    onMouseLeave={e => e.currentTarget.style.background = selectedRapper.id === rapper.id ? 'rgba(255,107,0,0.05)' : 'transparent'}
-                  >
-                    <div style={{
-                      width: '48px', height: '48px', borderRadius: '50%', flexShrink: 0,
-                      background: 'radial-gradient(circle, ' + color + ' 0%, ' + color + '44 100%)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px',
-                    }}>🎤</div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                        <span style={{ fontWeight: 700, fontSize: '15px' }}>{rapper.name}</span>
-                        <span style={{ fontSize: '11px', color: color, background: color + '22', padding: '2px 8px', borderRadius: '10px' }}>{rapper.category.replace('_', ' ')}</span>
+                  />
+                  {search && (
+                    <button onClick={() => setSearch('')} style={{
+                      position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
+                      background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white',
+                      width: '22px', height: '22px', borderRadius: '50%', cursor: 'pointer', fontSize: '11px',
+                    }}>✕</button>
+                  )}
+                </div>
+              </div>
+
+              {filteredRappers.length === 0 ? (
+                <div style={{ padding: '40px', textAlign: 'center', color: 'rgba(255,255,255,0.3)' }}>
+                  Aucun rappeur trouvé pour "{search}"
+                </div>
+              ) : (
+                filteredRappers.map((rapper, i) => {
+                  const color = categoryColors[rapper.category] ?? '#ff6b00'
+                  const gain = [1250, 850, 400, 200][i] ?? 150
+                  return (
+                    <div key={rapper.id} onClick={() => setSelectedRapper(rapper)}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: '16px', padding: '16px 24px', cursor: 'pointer',
+                        borderBottom: i < filteredRappers.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
+                        background: selectedRapper.id === rapper.id ? 'rgba(255,107,0,0.05)' : 'transparent',
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,107,0,0.05)'}
+                      onMouseLeave={e => e.currentTarget.style.background = selectedRapper.id === rapper.id ? 'rgba(255,107,0,0.05)' : 'transparent'}
+                    >
+                      <div style={{
+                        width: '48px', height: '48px', borderRadius: '50%', flexShrink: 0,
+                        overflow: 'hidden', border: '2px solid ' + color,
+                        background: color + '33', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        boxShadow: '0 0 10px ' + color + '44',
+                      }}>
+                        {rapper.profile_image_url
+                          ? <img src={rapper.profile_image_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          : <span style={{ fontSize: '22px' }}>🎤</span>
+                        }
                       </div>
-                      <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)' }}>📍 {rapper.city} · Score {rapper.activity_score}</p>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                          <span style={{ fontWeight: 700, fontSize: '15px' }}>{rapper.name}</span>
+                          <span style={{ fontSize: '11px', color: color, background: color + '22', padding: '2px 8px', borderRadius: '10px' }}>{rapper.category.replace('_', ' ')}</span>
+                        </div>
+                        <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)' }}>📍 {rapper.city} · Score {rapper.activity_score}</p>
+                      </div>
+                      <p style={{ fontSize: '16px', fontWeight: 800, color: '#00ff87' }}>+{gain} 💊</p>
                     </div>
-                    <p style={{ fontSize: '16px', fontWeight: 800, color: '#00ff87' }}>+{gain} 💊</p>
-                  </div>
-                )
-              })}
+                  )
+                })
+              )}
             </div>
 
             <div style={{ background: 'rgba(15,15,25,0.95)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '20px', overflow: 'hidden' }}>
@@ -152,10 +199,17 @@ function BetsPage({ rappers }: Props) {
                 <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>🎯 Featured Bet</p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                   <div style={{
-                    width: '60px', height: '60px', borderRadius: '50%',
-                    background: 'radial-gradient(circle, ' + (categoryColors[selectedRapper.category] ?? '#ff6b00') + ' 0%, ' + (categoryColors[selectedRapper.category] ?? '#ff6b00') + '44 100%)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px',
-                  }}>🎤</div>
+                    width: '60px', height: '60px', borderRadius: '50%', flexShrink: 0,
+                    overflow: 'hidden', border: '2px solid ' + (categoryColors[selectedRapper.category] ?? '#ff6b00'),
+                    background: (categoryColors[selectedRapper.category] ?? '#ff6b00') + '33',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    boxShadow: '0 0 20px ' + (categoryColors[selectedRapper.category] ?? '#ff6b00') + '66',
+                  }}>
+                    {selectedRapper.profile_image_url
+                      ? <img src={selectedRapper.profile_image_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      : <span style={{ fontSize: '28px' }}>🎤</span>
+                    }
+                  </div>
                   <div>
                     <h3 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '4px' }}>{selectedRapper.name}</h3>
                     <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>📍 {selectedRapper.city}</p>
