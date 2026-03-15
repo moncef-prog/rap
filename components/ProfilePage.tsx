@@ -10,7 +10,7 @@ const supabase = createSupabaseClient(
 )
 
 const categoryColors: Record<string, string> = {
-  new_gen: '#00ff87', mainstream: '#ff6b00', old_school: '#3b82f6', underground: '#a855f7',
+  new_gen: '#00ff87', mainstream: '#E63946', old_school: '#3b82f6', underground: '#a855f7',
 }
 
 export default function ProfilePage({ rappers }: { rappers: any[] }) {
@@ -61,7 +61,7 @@ export default function ProfilePage({ rappers }: { rappers: any[] }) {
         }}>
           <div style={{
             width: 80, height: 80, borderRadius: '50%',
-            background: 'linear-gradient(135deg, #ff6b00, #ff9500)',
+            background: 'linear-gradient(135deg, #E63946, #C1121F)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 32, fontWeight: 900, flexShrink: 0,
           }}>
@@ -72,17 +72,17 @@ export default function ProfilePage({ rappers }: { rappers: any[] }) {
             <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px' }}>{user?.email}</p>
           </div>
           <div style={{
-            padding: '16px 24px', background: 'rgba(255,107,0,0.1)',
-            border: '1px solid rgba(255,107,0,0.2)', borderRadius: '16px', textAlign: 'center',
+            padding: '16px 24px', background: 'rgba(230,57,70,0.1)',
+            border: '1px solid rgba(230,57,70,0.2)', borderRadius: '16px', textAlign: 'center',
           }}>
             <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginBottom: '4px' }}>BALANCE</p>
-            <p style={{ fontSize: '28px', fontWeight: 900, color: '#ff6b00' }}>💊 {profile?.balance?.toLocaleString()}</p>
+            <p style={{ fontSize: '28px', fontWeight: 900, color: '#E63946' }}>💊 {profile?.balance?.toLocaleString()}</p>
           </div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '32px' }}>
           {[
-            { label: 'Total misé', value: '💊 ' + totalMise.toLocaleString(), color: '#ff6b00' },
+            { label: 'Total misé', value: '💊 ' + totalMise.toLocaleString(), color: '#E63946' },
             { label: 'Paris actifs', value: activeBets, color: '#00ff87' },
             { label: 'Paris total', value: bets.length, color: '#3b82f6' },
           ].map(stat => (
@@ -103,12 +103,12 @@ export default function ProfilePage({ rappers }: { rappers: any[] }) {
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <h2 style={{ fontSize: '18px', fontWeight: 800 }}>🏆 Mon Équipe Fantasy</h2>
-              <a href="/fantasy" style={{ fontSize: '13px', color: '#ff6b00', textDecoration: 'none' }}>Modifier →</a>
+              <a href="/fantasy" style={{ fontSize: '13px', color: '#E63946', textDecoration: 'none' }}>Modifier →</a>
             </div>
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
               {fantasyTeam.fantasy_team_rappers.map((member: any) => {
                 const rapper = member.rappers
-                const color = categoryColors[rapper.category] ?? '#ff6b00'
+                const color = categoryColors[rapper.category] ?? '#E63946'
                 return (
                   <div key={member.id} style={{
                     display: 'flex', alignItems: 'center', gap: '10px',
@@ -146,7 +146,7 @@ export default function ProfilePage({ rappers }: { rappers: any[] }) {
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {bets.map(bet => {
-                const color = categoryColors[bet.rappers?.category] ?? '#ff6b00'
+                const color = categoryColors[bet.rappers?.category] ?? '#E63946'
                 return (
                   <div key={bet.id} style={{
                     display: 'flex', alignItems: 'center', gap: '14px',
@@ -170,7 +170,7 @@ export default function ProfilePage({ rappers }: { rappers: any[] }) {
                       </p>
                     </div>
                     <div style={{ textAlign: 'right' }}>
-                      <p style={{ fontWeight: 700, color: '#ff6b00' }}>💊 {bet.amount}</p>
+                      <p style={{ fontWeight: 700, color: '#E63946' }}>💊 {bet.amount}</p>
                       <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)' }}>x{bet.multiplier}</p>
                     </div>
                     <span style={{

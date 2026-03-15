@@ -21,7 +21,7 @@ function getRapperValue(score: number) {
 }
 
 const categoryColors: Record<string, string> = {
-  new_gen: '#00ff87', mainstream: '#ff6b00', old_school: '#3b82f6', underground: '#a855f7',
+  new_gen: '#00ff87', mainstream: '#E63946', old_school: '#3b82f6', underground: '#a855f7',
 }
 
 const positions = [
@@ -33,7 +33,7 @@ const positions = [
 ]
 
 function PlayerCard({ rapper, position }: { rapper: any; position: any }) {
-  const color = categoryColors[rapper.category] ?? '#ff6b00'
+  const color = categoryColors[rapper.category] ?? '#E63946'
   return (
     <div style={{
       position: 'absolute', top: position.top, left: position.left,
@@ -70,16 +70,16 @@ function FootballPitch({ team }: { team: any[] }) {
         position: 'absolute', inset: 0,
         background: `repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255,255,255,0.02) 40px, rgba(255,255,255,0.02) 41px), repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255,255,255,0.02) 40px, rgba(255,255,255,0.02) 41px), linear-gradient(160deg, #1a1a2e 0%, #0f0f1a 40%, #1a1208 100%)`,
       }} />
-      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 30% 20%, rgba(255,107,0,0.06) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(168,85,247,0.06) 0%, transparent 50%)' }} />
-      <div style={{ position: 'absolute', inset: '12px', border: '3px solid rgba(255,107,0,0.6)', borderRadius: '4px', boxShadow: '0 0 12px rgba(255,107,0,0.3), inset 0 0 12px rgba(255,107,0,0.05)' }} />
-      <div style={{ position: 'absolute', top: '50%', left: '12px', right: '12px', height: '3px', background: 'rgba(255,107,0,0.6)', boxShadow: '0 0 8px rgba(255,107,0,0.4)' }} />
-      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '90px', height: '90px', border: '3px solid rgba(255,107,0,0.5)', borderRadius: '50%', boxShadow: '0 0 12px rgba(255,107,0,0.3)' }} />
-      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '8px', height: '8px', background: '#ff6b00', borderRadius: '50%', boxShadow: '0 0 8px #ff6b00' }} />
-      <div style={{ position: 'absolute', top: '12px', left: '28%', right: '28%', height: '16%', border: '3px solid rgba(255,107,0,0.4)', borderTop: 'none' }} />
-      <div style={{ position: 'absolute', bottom: '12px', left: '28%', right: '28%', height: '16%', border: '3px solid rgba(255,107,0,0.4)', borderBottom: 'none' }} />
+      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 30% 20%, rgba(230,57,70,0.06) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(168,85,247,0.06) 0%, transparent 50%)' }} />
+      <div style={{ position: 'absolute', inset: '12px', border: '3px solid rgba(230,57,70,0.6)', borderRadius: '4px', boxShadow: '0 0 12px rgba(230,57,70,0.3), inset 0 0 12px rgba(230,57,70,0.05)' }} />
+      <div style={{ position: 'absolute', top: '50%', left: '12px', right: '12px', height: '3px', background: 'rgba(230,57,70,0.6)', boxShadow: '0 0 8px rgba(230,57,70,0.4)' }} />
+      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '90px', height: '90px', border: '3px solid rgba(230,57,70,0.5)', borderRadius: '50%', boxShadow: '0 0 12px rgba(230,57,70,0.3)' }} />
+      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '8px', height: '8px', background: '#E63946', borderRadius: '50%', boxShadow: '0 0 8px #E63946' }} />
+      <div style={{ position: 'absolute', top: '12px', left: '28%', right: '28%', height: '16%', border: '3px solid rgba(230,57,70,0.4)', borderTop: 'none' }} />
+      <div style={{ position: 'absolute', bottom: '12px', left: '28%', right: '28%', height: '16%', border: '3px solid rgba(230,57,70,0.4)', borderBottom: 'none' }} />
       <div style={{ position: 'absolute', top: '8px', left: '40%', right: '40%', height: '22px', border: '3px solid rgba(255,200,0,0.7)', borderTop: 'none', background: 'rgba(255,200,0,0.05)', boxShadow: '0 0 10px rgba(255,200,0,0.4)' }} />
       <div style={{ position: 'absolute', bottom: '8px', left: '40%', right: '40%', height: '22px', border: '3px solid rgba(255,200,0,0.7)', borderBottom: 'none', background: 'rgba(255,200,0,0.05)', boxShadow: '0 0 10px rgba(255,200,0,0.4)' }} />
-      <div style={{ position: 'absolute', top: '8%', left: '5%', fontSize: '11px', fontWeight: 900, color: 'rgba(255,107,0,0.15)', fontStyle: 'italic', transform: 'rotate(-15deg)', letterSpacing: '2px' }}>RAP MAP</div>
+      <div style={{ position: 'absolute', top: '8%', left: '5%', fontSize: '11px', fontWeight: 900, color: 'rgba(230,57,70,0.15)', fontStyle: 'italic', transform: 'rotate(-15deg)', letterSpacing: '2px' }}>RAP MAP</div>
       <div style={{ position: 'absolute', bottom: '8%', right: '5%', fontSize: '11px', fontWeight: 900, color: 'rgba(168,85,247,0.15)', fontStyle: 'italic', transform: 'rotate(10deg)', letterSpacing: '2px' }}>MOROCCO</div>
       {team.map((rapper, i) => <PlayerCard key={rapper.id} rapper={rapper} position={positions[i]} />)}
     </div>
@@ -169,7 +169,7 @@ export default function FantasyPage({ rappers }: { rappers: any[] }) {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px' }}>
           <div>
             <h1 style={{ fontSize: '32px', fontWeight: 900, marginBottom: '4px' }}>
-              🏆 <span style={{ color: '#ff6b00' }}>Fantasy</span> Rap Morocco
+              🏆 9ri9i<span style={{ color: '#E63946' }}>BET</span> League
             </h1>
             <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '14px' }}>Compose ton équipe · Défie tes amis · Gagne des Rivo</p>
           </div>
@@ -184,7 +184,7 @@ export default function FantasyPage({ rappers }: { rappers: any[] }) {
             <button key={t.key} onClick={() => setMainTab(t.key as any)} style={{
               padding: '10px 24px', borderRadius: '10px', border: 'none', cursor: 'pointer',
               fontSize: '14px', fontWeight: 600,
-              background: mainTab === t.key ? '#ff6b00' : 'transparent',
+              background: mainTab === t.key ? '#E63946' : 'transparent',
               color: mainTab === t.key ? 'white' : 'rgba(255,255,255,0.4)',
             }}>{t.label}</button>
           ))}
@@ -210,7 +210,7 @@ export default function FantasyPage({ rappers }: { rappers: any[] }) {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '24px' }}>
                   {[
                     { label: 'Joueurs', value: team.length + '/5', color: '#00ff87' },
-                    { label: 'Score total', value: totalScore + ' pts', color: '#ff6b00' },
+                    { label: 'Score total', value: totalScore + ' pts', color: '#E63946' },
                     { label: 'Dépensé', value: '💊 ' + spent.toLocaleString(), color: '#3b82f6' },
                   ].map(s => (
                     <div key={s.label} style={{
@@ -233,7 +233,7 @@ export default function FantasyPage({ rappers }: { rappers: any[] }) {
                       const price = getRapperValue(rapper.activity_score)
                       const inTeam = !!team.find(r => r.id === rapper.id)
                       const cantAfford = price > budget && !inTeam
-                      const color = categoryColors[rapper.category] ?? '#ff6b00'
+                      const color = categoryColors[rapper.category] ?? '#E63946'
                       return (
                         <div key={rapper.id} onClick={() => inTeam ? removeRapper(rapper) : addRapper(rapper)}
                           style={{
@@ -257,7 +257,7 @@ export default function FantasyPage({ rappers }: { rappers: any[] }) {
                           </div>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <span style={{ fontSize: '11px', fontWeight: 700, padding: '2px 8px', borderRadius: '20px', background: color + '22', color }}>{rapper.category.replace('_', ' ')}</span>
-                            <span style={{ fontSize: '14px', fontWeight: 800, color: '#ff6b00' }}>💊 {price.toLocaleString()}</span>
+                            <span style={{ fontSize: '14px', fontWeight: 800, color: '#E63946' }}>💊 {price.toLocaleString()}</span>
                           </div>
                         </div>
                       )
@@ -268,10 +268,10 @@ export default function FantasyPage({ rappers }: { rappers: any[] }) {
                 <div style={{ position: 'sticky', top: '84px', height: 'fit-content' }}>
                   <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px', padding: '24px' }}>
                     <h2 style={{ fontSize: '18px', fontWeight: 800, marginBottom: '20px' }}>Mon Équipe</h2>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', padding: '14px', background: 'rgba(255,107,0,0.08)', borderRadius: '12px', border: '1px solid rgba(255,107,0,0.2)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', padding: '14px', background: 'rgba(230,57,70,0.08)', borderRadius: '12px', border: '1px solid rgba(230,57,70,0.2)' }}>
                       <div>
                         <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginBottom: '4px' }}>BUDGET RESTANT</p>
-                        <p style={{ fontSize: '22px', fontWeight: 900, color: '#ff6b00' }}>💊 {budget.toLocaleString()}</p>
+                        <p style={{ fontSize: '22px', fontWeight: 900, color: '#E63946' }}>💊 {budget.toLocaleString()}</p>
                       </div>
                       <div style={{ textAlign: 'right' }}>
                         <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginBottom: '4px' }}>DÉPENSÉ</p>
@@ -281,7 +281,7 @@ export default function FantasyPage({ rappers }: { rappers: any[] }) {
                     <div style={{ marginBottom: '20px' }}>
                       {Array.from({ length: 5 }).map((_, i) => {
                         const rapper = team[i]
-                        const color = rapper ? (categoryColors[rapper.category] ?? '#ff6b00') : 'rgba(255,255,255,0.1)'
+                        const color = rapper ? (categoryColors[rapper.category] ?? '#E63946') : 'rgba(255,255,255,0.1)'
                         return (
                           <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 12px', marginBottom: '8px', borderRadius: '12px', background: rapper ? color + '11' : 'rgba(255,255,255,0.02)', border: '1px solid ' + (rapper ? color + '33' : 'rgba(255,255,255,0.06)') }}>
                             {rapper ? (
@@ -307,10 +307,10 @@ export default function FantasyPage({ rappers }: { rappers: any[] }) {
                     </div>
                     <button onClick={saveTeam} disabled={saving || team.length === 0} style={{
                       width: '100%', padding: '14px',
-                      background: team.length > 0 ? 'linear-gradient(135deg, #ff6b00, #ff9500)' : 'rgba(255,255,255,0.05)',
+                      background: team.length > 0 ? 'linear-gradient(135deg, #E63946, #C1121F)' : 'rgba(255,255,255,0.05)',
                       border: 'none', borderRadius: '12px', color: 'white', fontWeight: 800,
                       fontSize: '15px', cursor: team.length > 0 ? 'pointer' : 'not-allowed',
-                      boxShadow: team.length > 0 ? '0 4px 20px rgba(255,107,0,0.3)' : 'none',
+                      boxShadow: team.length > 0 ? '0 4px 20px rgba(230,57,70,0.3)' : 'none',
                     }}>
                       {saving ? 'Sauvegarde...' : `🏆 Valider l'équipe (${team.length}/5)`}
                     </button>

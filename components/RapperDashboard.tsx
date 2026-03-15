@@ -289,7 +289,7 @@ export default function RapperDashboard({ rapper, bets: initialBets }: Props) {
             style={{
               width: '100%', padding: '16px', borderRadius: '14px', border: 'none',
               cursor: loading ? 'not-allowed' : 'pointer', fontSize: '16px', fontWeight: 800,
-              background: loading ? 'rgba(255,107,0,0.4)' : 'linear-gradient(135deg, ' + color + ', #ff9500)',
+              background: loading ? 'rgba(230,57,70,0.4)' : 'linear-gradient(135deg, ' + color + ', #ff9500)',
               color: '#08080c', boxShadow: '0 4px 30px ' + color + '44', transition: 'all 0.2s',
             }}
             onMouseEnter={e => { if (!loading) e.currentTarget.style.transform = 'translateY(-2px)' }}

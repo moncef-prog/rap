@@ -24,7 +24,7 @@ interface SidebarProps {
 
 const categoryColors: Record<string, string> = {
   new_gen: '#00ff87',
-  mainstream: '#ff6b00',
+  mainstream: '#E63946',
   old_school: '#3b82f6',
   underground: '#a855f7',
 }
@@ -52,7 +52,7 @@ export default function Sidebar({ rappers, onSelectRapper, selectedRapper }: Sid
     <div style={{
       position: 'fixed',
       top: '60px', left: 0,
-      width: '280px',
+      width: '340px',
       height: 'calc(100vh - 60px)',
       background: 'rgba(10,10,15,0.97)',
       backdropFilter: 'blur(20px)',
@@ -100,7 +100,7 @@ export default function Sidebar({ rappers, onSelectRapper, selectedRapper }: Sid
         <button onClick={() => setActiveFilter(null)} style={{
           padding: '4px 10px', borderRadius: '20px', border: 'none', cursor: 'pointer',
           fontSize: '11px', fontWeight: 700,
-          background: !activeFilter ? 'rgba(255,107,0,0.8)' : 'rgba(255,255,255,0.06)',
+          background: !activeFilter ? 'rgba(230,57,70,0.8)' : 'rgba(255,255,255,0.06)',
           color: !activeFilter ? 'white' : 'rgba(255,255,255,0.4)',
         }}>Tous</button>
         {Object.entries(categoryLabels).map(([key, label]) => (
@@ -121,7 +121,7 @@ export default function Sidebar({ rappers, onSelectRapper, selectedRapper }: Sid
           <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '13px', textAlign: 'center', padding: '20px' }}>Aucun résultat</p>
         ) : (
           filtered.map((rapper) => {
-            const color = categoryColors[rapper.category] ?? '#ff6b00'
+            const color = categoryColors[rapper.category] ?? '#E63946'
             const isSelected = selectedRapper?.id === rapper.id
             return (
               <div key={rapper.id} onClick={() => onSelectRapper(rapper)}
@@ -132,7 +132,7 @@ export default function Sidebar({ rappers, onSelectRapper, selectedRapper }: Sid
                   border: isSelected ? '1px solid ' + color + '44' : '1px solid rgba(255,255,255,0.06)',
                   cursor: 'pointer', transition: 'all 0.2s',
                 }}
-                onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = 'rgba(255,107,0,0.08)' }}
+                onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = 'rgba(230,57,70,0.08)' }}
                 onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = 'rgba(255,255,255,0.03)' }}
               >
                 {/* Avatar */}

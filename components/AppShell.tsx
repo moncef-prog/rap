@@ -29,7 +29,7 @@ export default function AppShell({ rappers }: { rappers: Rapper[] }) {
         onSelectRapper={setSelectedRapper}
         selectedRapper={selectedRapper}
       />
-      <div style={{ marginLeft: '280px', height: '100%' }}>
+      <div style={{ marginLeft: '340px', height: '100%' }}>
         <Map
           rappers={rappers}
           selectedRapper={selectedRapper}

@@ -65,7 +65,7 @@ export default function Navbar() {
   const links = [
     { label: 'Carte', href: '/' },
     { label: 'Rappers', href: '/bets' },
-    { label: 'Fantasy', href: '/fantasy' },
+    { label: 'league ', href: '/fantasy' },
     { label: 'Profil', href: '/profile' },
   ]
 
@@ -80,7 +80,7 @@ export default function Navbar() {
         <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontSize: '20px' }}>🎤</span>
           <span style={{ fontWeight: 800, fontSize: '16px', color: 'white', letterSpacing: '-0.5px' }}>
-            9ri9i<span style={{ color: '#ff6b00' }}>BET</span>
+           9ri9i<span style={{ color: '#E63946' }}>BET</span>
           </span>
         </Link>
 
@@ -89,9 +89,10 @@ export default function Navbar() {
             const active = pathname === item.href
             return (
               <Link key={item.label} href={item.href} style={{
-                color: active ? '#ff6b00' : 'rgba(255,255,255,0.5)',
-                textDecoration: 'none', fontSize: '14px', fontWeight: 500,
-                borderBottom: active ? '2px solid #ff6b00' : '2px solid transparent',
+                color: active ? 'white' : 'rgba(255,255,255,0.45)',
+                textDecoration: 'none', fontSize: '14px', fontWeight: 600,
+                background: active ? 'rgba(230,57,70,0.12)' : 'transparent',
+                borderBottom: active ? '2px solid #E63946' : '2px solid transparent',
                 paddingBottom: '2px', transition: 'color 0.2s',
               }}>{item.label}</Link>
             )
@@ -134,7 +135,7 @@ export default function Navbar() {
           }}>
             <div style={{ textAlign: 'center', marginBottom: '28px' }}>
               <h2 style={{ fontSize: '22px', fontWeight: 800, marginBottom: '6px' }}>
-                🎤 RAP MAP <span style={{ color: '#ff6b00' }}>MOROCCO</span>
+                🏆 9ri9i<span style={{ color: '#E63946' }}>BET</span> League
               </h2>
               <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>
                 {isLogin ? 'Connecte-toi pour parier' : 'Crée ton compte — 1000 💊 Rivo offerts'}

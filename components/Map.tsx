@@ -29,7 +29,7 @@ interface MapProps {
 
 const categoryColors: Record<string, string> = {
   new_gen: '#00ff87',
-  mainstream: '#ff6b00',
+  mainstream: '#E63946',
   old_school: '#3b82f6',
   underground: '#a855f7',
 }
@@ -129,7 +129,7 @@ export default function Map({ rappers, selectedRapper, onSelectRapper }: MapProp
     })
   }, [rappers])
 
-  const color = selected ? (categoryColors[selected.category] ?? '#ff6b00') : '#ff6b00'
+  const color = selected ? (categoryColors[selected.category] ?? '#E63946') : '#E63946'
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
@@ -139,7 +139,7 @@ export default function Map({ rappers, selectedRapper, onSelectRapper }: MapProp
         <div style={{
           position: 'absolute', bottom: '32px', right: '32px', width: '300px',
           background: 'rgba(8,8,12,0.97)', backdropFilter: 'blur(24px)',
-          border: '1px solid rgba(255,107,0,0.2)', borderRadius: '20px',
+          border: '1px solid rgba(230,57,70,0.2)', borderRadius: '20px',
           overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.9)',
           animation: 'fadeUp 0.3s ease', zIndex: 10,
         }}>
@@ -161,14 +161,14 @@ export default function Map({ rappers, selectedRapper, onSelectRapper }: MapProp
                   padding: '10px 12px', borderRadius: '12px', background: 'transparent',
                   border: 'none', cursor: 'pointer', color: 'white', textAlign: 'left',
                 }}
-                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,107,0,0.1)')}
+                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(230,57,70,0.1)')}
                 onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
               >
                 <div style={{
                   width: '40px', height: '40px', borderRadius: '50%', flexShrink: 0,
-                  overflow: 'hidden', border: '2px solid ' + (categoryColors[rapper.category] ?? '#ff6b00'),
-                  boxShadow: '0 0 12px ' + (categoryColors[rapper.category] ?? '#ff6b00') + '88',
-                  background: 'radial-gradient(circle, ' + (categoryColors[rapper.category] ?? '#ff6b00') + ' 0%, ' + (categoryColors[rapper.category] ?? '#ff6b00') + '66 100%)',
+                  overflow: 'hidden', border: '2px solid ' + (categoryColors[rapper.category] ?? '#E63946'),
+                  boxShadow: '0 0 12px ' + (categoryColors[rapper.category] ?? '#E63946') + '88',
+                  background: 'radial-gradient(circle, ' + (categoryColors[rapper.category] ?? '#E63946') + ' 0%, ' + (categoryColors[rapper.category] ?? '#E63946') + '66 100%)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px',
                 }}>
                   {rapper.profile_image_url
@@ -181,8 +181,8 @@ export default function Map({ rappers, selectedRapper, onSelectRapper }: MapProp
                   <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)' }}>📍 {rapper.neighborhood}</p>
                 </div>
                 <span style={{
-                  marginLeft: 'auto', fontSize: '11px', fontWeight: 700, color: '#ff6b00',
-                  background: 'rgba(255,107,0,0.1)', padding: '2px 8px', borderRadius: '20px',
+                  marginLeft: 'auto', fontSize: '11px', fontWeight: 700, color: '#E63946',
+                  background: 'rgba(230,57,70,0.1)', padding: '2px 8px', borderRadius: '20px',
                 }}>{rapper.activity_score}</span>
               </button>
             ))}
@@ -249,18 +249,18 @@ export default function Map({ rappers, selectedRapper, onSelectRapper }: MapProp
               <div style={{ flex: 1, height: '4px', background: 'rgba(255,255,255,0.08)', borderRadius: '2px', overflow: 'hidden' }}>
                 <div style={{
                   width: selected.activity_score + '%', height: '100%',
-                  background: 'linear-gradient(90deg, #ff6b00, #ffaa00)', borderRadius: '2px',
+                  background: 'linear-gradient(90deg, #E63946, #ffaa00)', borderRadius: '2px',
                 }} />
               </div>
-              <span style={{ fontSize: '12px', fontWeight: 700, color: '#ff6b00' }}>{selected.activity_score}</span>
+              <span style={{ fontSize: '12px', fontWeight: 700, color: '#E63946' }}>{selected.activity_score}</span>
             </div>
 
             <a href={'/rapper/' + selected.slug} style={{
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
               width: '100%', padding: '12px',
-              background: 'linear-gradient(135deg, #ff6b00, #ff9500)',
+              background: 'linear-gradient(135deg, #E63946, #C1121F)',
               borderRadius: '12px', color: 'white', fontWeight: 700, fontSize: '14px',
-              textDecoration: 'none', boxShadow: '0 4px 20px rgba(255,107,0,0.3)',
+              textDecoration: 'none', boxShadow: '0 4px 20px rgba(230,57,70,0.3)',
               marginBottom: '8px', boxSizing: 'border-box',
             }}>
               🔥 Voir le profil & Parier

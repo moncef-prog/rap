@@ -120,8 +120,8 @@ export default function LeaguePage() {
           <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>Code d'invitation :</span>
           <span style={{
             fontFamily: 'monospace', fontWeight: 800, fontSize: '16px', letterSpacing: '3px',
-            color: '#ff6b00', background: 'rgba(255,107,0,0.1)', padding: '4px 12px', borderRadius: '8px',
-            border: '1px solid rgba(255,107,0,0.3)',
+            color: '#E63946', background: 'rgba(230,57,70,0.1)', padding: '4px 12px', borderRadius: '8px',
+            border: '1px solid rgba(230,57,70,0.3)',
           }}>{selectedLeague.code}</span>
           <button onClick={() => navigator.clipboard.writeText(selectedLeague.code)} style={{
             background: 'rgba(255,255,255,0.06)', border: 'none', color: 'white',
@@ -144,14 +144,14 @@ export default function LeaguePage() {
                 display: 'flex', alignItems: 'center', gap: '14px',
                 padding: '14px 20px',
                 borderBottom: i < members.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
-                background: member.user_id === user.id ? 'rgba(255,107,0,0.05)' : 'transparent',
+                background: member.user_id === user.id ? 'rgba(230,57,70,0.05)' : 'transparent',
               }}>
                 <span style={{ fontSize: '20px', width: 28, textAlign: 'center' }}>
                   {medals[i] ?? <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.3)' }}>#{i + 1}</span>}
                 </span>
                 <div style={{
                   width: 36, height: 36, borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #ff6b00, #ff9500)',
+                  background: 'linear-gradient(135deg, #E63946, #C1121F)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: 14, fontWeight: 900, flexShrink: 0,
                 }}>
@@ -160,7 +160,7 @@ export default function LeaguePage() {
                 <div style={{ flex: 1 }}>
                   <p style={{ fontWeight: 700, fontSize: '14px' }}>
                     {member.profiles?.username}
-                    {member.user_id === user.id && <span style={{ marginLeft: 8, fontSize: '11px', color: '#ff6b00' }}>(toi)</span>}
+                    {member.user_id === user.id && <span style={{ marginLeft: 8, fontSize: '11px', color: '#E63946' }}>(toi)</span>}
                   </p>
                   <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)' }}>💊 {member.profiles?.balance?.toLocaleString()} Rivo</p>
                 </div>
@@ -188,7 +188,7 @@ export default function LeaguePage() {
           <button key={t.key} onClick={() => setTab(t.key as any)} style={{
             padding: '10px 20px', borderRadius: '10px', border: 'none', cursor: 'pointer',
             fontSize: '14px', fontWeight: 600,
-            background: tab === t.key ? '#ff6b00' : 'transparent',
+            background: tab === t.key ? '#E63946' : 'transparent',
             color: tab === t.key ? 'white' : 'rgba(255,255,255,0.4)',
           }}>{t.label}</button>
         ))}
@@ -214,17 +214,17 @@ export default function LeaguePage() {
                       background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)',
                       transition: 'all 0.2s',
                     }}
-                    onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(255,107,0,0.4)'}
+                    onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(230,57,70,0.4)'}
                     onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
                       <h3 style={{ fontSize: '16px', fontWeight: 800 }}>{league.name}</h3>
                       {league.creator_id === user.id && (
-                        <span style={{ fontSize: '10px', color: '#ff6b00', background: 'rgba(255,107,0,0.1)', padding: '2px 8px', borderRadius: '20px', border: '1px solid rgba(255,107,0,0.2)' }}>Admin</span>
+                        <span style={{ fontSize: '10px', color: '#E63946', background: 'rgba(230,57,70,0.1)', padding: '2px 8px', borderRadius: '20px', border: '1px solid rgba(230,57,70,0.2)' }}>Admin</span>
                       )}
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ fontFamily: 'monospace', fontWeight: 800, color: '#ff6b00', fontSize: '14px', letterSpacing: '2px' }}>{league.code}</span>
+                      <span style={{ fontFamily: 'monospace', fontWeight: 800, color: '#E63946', fontSize: '14px', letterSpacing: '2px' }}>{league.code}</span>
                     </div>
                     <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)', marginTop: '8px' }}>Voir le classement →</p>
                   </div>
@@ -248,7 +248,7 @@ export default function LeaguePage() {
           )}
           <button onClick={createLeague} disabled={creating || !leagueName.trim()} style={{
             width: '100%', padding: '14px', borderRadius: '12px', border: 'none',
-            background: leagueName.trim() ? 'linear-gradient(135deg, #ff6b00, #ff9500)' : 'rgba(255,255,255,0.05)',
+            background: leagueName.trim() ? 'linear-gradient(135deg, #E63946, #C1121F)' : 'rgba(255,255,255,0.05)',
             color: 'white', fontWeight: 800, fontSize: '15px', cursor: leagueName.trim() ? 'pointer' : 'not-allowed',
           }}>
             {creating ? 'Création...' : '🏆 Créer la ligue'}
