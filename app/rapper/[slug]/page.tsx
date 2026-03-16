@@ -1,3 +1,4 @@
+export const revalidate = 0
 import { supabase } from '@/lib/supabase'
 import RapperDashboard from '@/components/RapperDashboard'
 import { notFound } from 'next/navigation'

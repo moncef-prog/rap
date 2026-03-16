@@ -1,3 +1,4 @@
+export const revalidate = 0
 import ProfilePage from '@/components/ProfilePage'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 
