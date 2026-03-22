@@ -13,6 +13,7 @@ const supabase = createClient(
 interface Rapper {
   id: string
   name: string
+  slug: string
   city: string
   neighborhood: string
   short_bio: string
@@ -20,6 +21,7 @@ interface Rapper {
   activity_score: number
   active_since: number
   social_links: Record<string, string>
+  profile_image_url?: string
 }
 
 interface Bet {
@@ -37,7 +39,7 @@ interface Props {
 
 const categoryColors: Record<string, string> = {
   new_gen: '#00ff87',
-  mainstream: '#ff6b00',
+  mainstream: '#E63946',
   old_school: '#3b82f6',
   underground: '#a855f7',
 }
@@ -54,7 +56,7 @@ export default function RapperDashboard({ rapper, bets: initialBets }: Props) {
   const [bets, setBets] = useState(initialBets)
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
-  const color = categoryColors[rapper.category] ?? '#ff6b00'
+  const color = categoryColors[rapper.category] ?? '#E63946'
   const chartData = generateChartData(rapper.activity_score)
   const multiplier = (rapper.activity_score / 100 + 0.8).toFixed(1)
   const totalBets = bets.reduce((acc, b) => acc + b.amount, 0)
@@ -78,7 +80,6 @@ export default function RapperDashboard({ rapper, bets: initialBets }: Props) {
       return
     }
 
-    // Déduire la balance
     const { error: balanceError } = await supabase
       .from('profiles')
       .update({ balance: profile.balance - betAmount })
@@ -86,7 +87,6 @@ export default function RapperDashboard({ rapper, bets: initialBets }: Props) {
 
     if (balanceError) { setMessage('❌ Erreur'); setLoading(false); return }
 
-    // Créer le pari
     const { data: newBet, error: betError } = await supabase
       .from('bets')
       .insert({
@@ -104,15 +104,13 @@ export default function RapperDashboard({ rapper, bets: initialBets }: Props) {
     setBets([...bets, newBet])
     setMessage('✅ Pari placé ! -' + betAmount + ' Rivo')
     setLoading(false)
-
-    // Refresh la page après 1.5s pour mettre à jour la balance dans la navbar
     setTimeout(() => window.location.reload(), 1500)
   }
 
   return (
     <div style={{
       minHeight: '100vh',
-      background: '#08080c',
+      background: '#060606',
       color: 'white',
       paddingTop: '60px',
       fontFamily: 'Inter, sans-serif',
@@ -126,19 +124,46 @@ export default function RapperDashboard({ rapper, bets: initialBets }: Props) {
         alignItems: 'center',
         gap: '32px',
       }}>
-        <a href="/" style={{ color: 'rgba(255,255,255,0.4)', textDecoration: 'none', fontSize: '14px' }}>← Retour</a>
+        {/* Boutons navigation */}
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <a href={`/back/`} style={{
+            color: 'rgba(255,255,255,0.4)', textDecoration: 'none', fontSize: '14px',
+            padding: '8px 14px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.08)',
+            background: 'rgba(255,255,255,0.03)',
+          }}>← Retour</a>
+          <a href={`/back/${rapper.slug}`} style={{
+              padding: '8px 16px', borderRadius: '10px',
+              background: '#E63946', border: 'none',
+              color: 'white', textDecoration: 'none', fontSize: '13px', fontWeight: 700,
+              display: 'flex', alignItems: 'center', gap: '6px',
+            }}>🔥 BACK</a>
+          <a href={`/community/${rapper.slug}`} style={{
+            padding: '8px 16px', borderRadius: '10px',
+            background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
+            color: 'white', textDecoration: 'none', fontSize: '13px', fontWeight: 600,
+            display: 'flex', alignItems: 'center', gap: '6px',
+          }}>👥 Communauté</a>
+        </div>
 
+        {/* Avatar */}
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: 'spring', stiffness: 200 }}
           style={{
             width: '100px', height: '100px', borderRadius: '50%',
-            background: 'radial-gradient(circle, ' + color + ' 0%, ' + color + '44 100%)',
+            overflow: 'hidden', flexShrink: 0,
+            border: '3px solid ' + color,
+            boxShadow: '0 0 40px ' + color + '66',
+            background: color + '33',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '48px', boxShadow: '0 0 40px ' + color + '66', flexShrink: 0,
           }}
-        >🎤</motion.div>
+        >
+          {rapper.profile_image_url
+            ? <img src={rapper.profile_image_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            : <span style={{ fontSize: 48 }}>🎤</span>
+          }
+        </motion.div>
 
         <div>
           <motion.h1
@@ -202,7 +227,7 @@ export default function RapperDashboard({ rapper, bets: initialBets }: Props) {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
             style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
             {[
-              { label: 'Total misé', value: totalBets + ' 💊', color: '#ff6b00' },
+              { label: 'Total misé', value: totalBets + ' 💊', color: '#E63946' },
               { label: 'Paris actifs', value: bets.filter(b => b.status === 'active').length.toString(), color: '#00ff87' },
               { label: 'Cote actuelle', value: 'x' + multiplier, color: color },
             ].map((stat) => (
@@ -245,7 +270,7 @@ export default function RapperDashboard({ rapper, bets: initialBets }: Props) {
                 flex: 1, padding: '10px 0', borderRadius: '10px', border: 'none', cursor: 'pointer',
                 fontSize: '13px', fontWeight: 700, transition: 'all 0.2s',
                 background: betAmount === amount ? color : 'rgba(255,255,255,0.06)',
-                color: betAmount === amount ? '#08080c' : 'rgba(255,255,255,0.6)',
+                color: betAmount === amount ? 'white' : 'rgba(255,255,255,0.6)',
                 boxShadow: betAmount === amount ? '0 0 15px ' + color + '66' : 'none',
               }}>
                 {amount} 💊
@@ -283,17 +308,14 @@ export default function RapperDashboard({ rapper, bets: initialBets }: Props) {
             }}>{message}</div>
           )}
 
-          <button
-            onClick={placeBet}
-            disabled={loading}
-            style={{
-              width: '100%', padding: '16px', borderRadius: '14px', border: 'none',
-              cursor: loading ? 'not-allowed' : 'pointer', fontSize: '16px', fontWeight: 800,
-              background: loading ? 'rgba(230,57,70,0.4)' : 'linear-gradient(135deg, ' + color + ', #ff9500)',
-              color: '#08080c', boxShadow: '0 4px 30px ' + color + '44', transition: 'all 0.2s',
-            }}
-            onMouseEnter={e => { if (!loading) e.currentTarget.style.transform = 'translateY(-2px)' }}
-            onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+          <button onClick={placeBet} disabled={loading} style={{
+            width: '100%', padding: '16px', borderRadius: '14px', border: 'none',
+            cursor: loading ? 'not-allowed' : 'pointer', fontSize: '16px', fontWeight: 800,
+            background: loading ? 'rgba(230,57,70,0.4)' : 'linear-gradient(135deg, #E63946, #C1121F)',
+            color: 'white', boxShadow: '0 4px 30px rgba(230,57,70,0.44)', transition: 'all 0.2s',
+          }}
+          onMouseEnter={e => { if (!loading) e.currentTarget.style.transform = 'translateY(-2px)' }}
+          onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
           >
             {loading ? 'En cours...' : 'PLACER LE PARI 🔥'}
           </button>
