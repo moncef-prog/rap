@@ -1,5 +1,5 @@
 'use client'
-
+import { Rapper } from '@/types'
 import { useState } from 'react'
 import dynamic from 'next/dynamic'
 import Sidebar from './Sidebar'
@@ -9,6 +9,7 @@ const Map = dynamic(() => import('./Map'), { ssr: false })
 interface Rapper {
   id: string
   name: string
+  slug: string
   city: string
   neighborhood: string
   latitude: number
@@ -17,6 +18,7 @@ interface Rapper {
   category: string
   activity_score: number
   social_links: Record<string, string>
+  profile_image_url?: string
 }
 
 export default function AppShell({ rappers }: { rappers: Rapper[] }) {

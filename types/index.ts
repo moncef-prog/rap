@@ -9,8 +9,8 @@ export interface Rapper {
   short_bio: string
   category: string
   activity_score: number
-  active_since: number
   social_links: Record<string, string>
+  profile_image_url?: string
 }
 
 export interface Bet {
@@ -26,3 +26,4 @@ export interface Profile {
   username: string
   balance: number
 }
+

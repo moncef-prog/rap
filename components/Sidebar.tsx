@@ -1,20 +1,7 @@
 'use client'
-
+import { Rapper } from '@/types'
 import { useState } from 'react'
 
-interface Rapper {
-  id: string
-  name: string
-  city: string
-  neighborhood: string
-  latitude: number
-  longitude: number
-  short_bio: string
-  category: string
-  activity_score: number
-  social_links: Record<string, string>
-  profile_image_url?: string
-}
 
 interface SidebarProps {
   rappers: Rapper[]
