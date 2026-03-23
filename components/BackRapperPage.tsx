@@ -131,7 +131,7 @@ export default function BackRapperPage({ rapper, backs, goals }: { rapper: any, 
             ].map(s => (
               <div key={s.label} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', padding: '16px', textAlign: 'center' }}>
                 <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginBottom: '6px' }}>{s.icon} {s.label}</p>
-                <p style={{ fontSize: '22px', fontWeight: 900, color }}>#{s.value}</p>
+                <p style={{ fontSize: '22px', fontWeight: 900, color }}>{s.value}</p>
               </div>
             ))}
           </div>

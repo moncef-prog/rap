@@ -67,6 +67,7 @@ export default function Navbar() {
     { label: 'Rappers', href: '/bets' },
     { label: 'league ', href: '/fantasy' },
     { label: 'Profil', href: '/profile' },
+    { label: 'Messages', href: '/messages' },
   ]
 
   return (
