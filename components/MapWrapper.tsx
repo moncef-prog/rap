@@ -2,23 +2,31 @@
 
 import { Rapper } from '@/types'
 import { useState } from 'react'
-import Map from './Map'
+import dynamic from 'next/dynamic'
 import Sidebar from './Sidebar'
 import BottomBar from './BottomBar'
 
+const Map = dynamic(() => import('./Map'), { ssr: false })
+
 export default function MapWrapper({ rappers }: { rappers: Rapper[] }) {
-  const [, setSelectedRapper] = useState<Rapper | null>(null)
+  const [selectedRapper, setSelectedRapper] = useState<Rapper | null>(null)
 
   return (
     <main style={{ width: '100vw', height: '100vh', position: 'relative' }}>
-      <Sidebar rappers={rappers} onSelectRapper={function (rapper: Rapper): void {
-              throw new Error('Function not implemented.')
-          } } selectedRapper={null} />
-      <div style={{ marginLeft: '280px', height: '100%', position: 'relative' }}>
-        <Map rappers={rappers} />
+      <Sidebar
+        rappers={rappers}
+        onSelectRapper={setSelectedRapper}
+        selectedRapper={selectedRapper}
+      />
+      <div style={{ marginLeft: '340px', height: '100%', position: 'relative' }}>
+        <Map
+          rappers={rappers}
+          selectedRapper={selectedRapper}
+          onSelectRapper={setSelectedRapper}
+        />
         <BottomBar
           rappers={rappers}
-          onSelectRapper={(rapper) => setSelectedRapper(rapper)}
+          onSelectRapper={setSelectedRapper}
         />
       </div>
     </main>

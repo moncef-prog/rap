@@ -1,7 +1,7 @@
 export interface Rapper {
   id: string
   name: string
-  slug: string
+  slug?: string
   city: string
   neighborhood: string
   latitude: number
