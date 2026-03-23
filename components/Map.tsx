@@ -1,26 +1,10 @@
 'use client'
-
+import { Rapper } from '@/types'
 import { useEffect, useRef, useState } from 'react'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!
-
-interface Rapper {
-  id: string
-  name: string
-  slug: string
-  city: string
-  neighborhood: string
-  latitude: number
-  longitude: number
-  short_bio: string
-  category: string
-  activity_score: number
-  social_links: Record<string, string>
-  profile_image_url?: string
-}
-
 interface MapProps {
   rappers: Rapper[]
   selectedRapper?: Rapper | null
