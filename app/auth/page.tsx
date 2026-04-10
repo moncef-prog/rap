@@ -54,8 +54,9 @@ export default function AuthPage() {
       router.push('/')
 
     } else {
-      // forgot password
-      const redirectTo = `${window.location.origin}/auth/reset-password`
+      // forgot password — URL fixe prod Vercel
+      const PROD_URL = 'https://9ri9ibet-8xslcmear-moncef-progs-projects.vercel.app'
+      const redirectTo = `${PROD_URL}/auth/reset-password`
       const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo })
       if (error) {
         setError(error.message)
