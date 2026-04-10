@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
+import { useIsMobile } from '@/lib/useIsMobile'
 
 const supabase = createSupabaseClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -32,6 +33,7 @@ export default function BackRapperPage({ rapper, backs, goals }: { rapper: any, 
   const [selectedLevel, setSelectedLevel] = useState(levels[0])
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
+  const isMobile = useIsMobile()
   const color = categoryColors[rapper.category] ?? '#E63946'
   const totalBackers = backs.length
   const totalBacked = backs.reduce((acc, b) => acc + b.amount, 0)
@@ -95,7 +97,7 @@ export default function BackRapperPage({ rapper, backs, goals }: { rapper: any, 
         <div style={{ maxWidth: '900px', margin: '0 auto' }}>
           <a href={`/rapper/${rapper.slug}`} style={{ color: 'rgba(255,255,255,0.4)', textDecoration: 'none', fontSize: '14px', display: 'block', marginBottom: '24px' }}>← Retour</a>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '24px', marginBottom: '32px' }}>
+          <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'flex-start' : 'center', gap: '16px', marginBottom: '24px' }}>
             <div style={{ width: 90, height: 90, borderRadius: '50%', overflow: 'hidden', border: `3px solid ${color}`, boxShadow: `0 0 30px ${color}66`, flexShrink: 0 }}>
               {rapper.profile_image_url
                 ? <img src={rapper.profile_image_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -116,14 +118,14 @@ export default function BackRapperPage({ rapper, backs, goals }: { rapper: any, 
             </div>
 
             {/* Hype score */}
-            <div style={{ textAlign: 'center', flexShrink: 0 }}>
+            <div style={{ textAlign: isMobile ? 'left' : 'center', flexShrink: 0 }}>
               <div style={{ fontSize: '52px', fontWeight: 900, color, lineHeight: 1 }}>{hyper}%</div>
               <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', marginTop: '4px' }}>Hype Score</p>
             </div>
           </div>
 
           {/* Stats */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '12px' }}>
             {[
               { label: 'Backers', value: totalBackers, icon: '👥' },
               { label: 'Total Rivo stakés', value: totalBacked.toLocaleString() + ' 💊', icon: '💰' },
@@ -138,7 +140,7 @@ export default function BackRapperPage({ rapper, backs, goals }: { rapper: any, 
         </div>
       </div>
 
-      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '32px 24px', display: 'grid', gridTemplateColumns: '1fr 360px', gap: '32px' }}>
+      <div style={{ maxWidth: '900px', margin: '0 auto', padding: isMobile ? '16px' : '32px 24px', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 360px', gap: '24px' }}>
 
         {/* Gauche — Goals + Top Backers */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -221,7 +223,7 @@ export default function BackRapperPage({ rapper, backs, goals }: { rapper: any, 
         </div>
 
         {/* Droite — Back Panel */}
-        <div style={{ position: 'sticky', top: '80px', height: 'fit-content' }}>
+        <div style={{ position: isMobile ? 'static' : 'sticky', top: '80px', height: 'fit-content' }}>
           <div style={{ background: 'rgba(15,15,25,0.95)', border: `1px solid ${color}33`, borderRadius: '24px', padding: '28px', boxShadow: `0 0 40px ${color}10` }}>
 
             {userBack ? (

@@ -1,19 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-
-interface Rapper {
-  id: string
-  name: string
-  city: string
-  neighborhood: string
-  latitude: number
-  longitude: number
-  short_bio: string
-  category: string
-  activity_score: number
-  social_links: Record<string, string>
-}
+import { Rapper } from '@/types'
 
 interface BottomBarProps {
   rappers: Rapper[]

@@ -1,12 +1,14 @@
 'use client'
 import { Rapper } from '@/types'
 import { useState } from 'react'
-
+import { useIsMobile } from '@/lib/useIsMobile'
 
 interface SidebarProps {
   rappers: Rapper[]
   onSelectRapper: (rapper: Rapper) => void
   selectedRapper: Rapper | null
+  mobileOpen?: boolean
+  onClose?: () => void
 }
 
 const categoryColors: Record<string, string> = {
@@ -23,9 +25,10 @@ const categoryLabels: Record<string, string> = {
   underground: 'Underground',
 }
 
-export default function Sidebar({ rappers, onSelectRapper, selectedRapper }: SidebarProps) {
+export default function Sidebar({ rappers, onSelectRapper, selectedRapper, mobileOpen, onClose }: SidebarProps) {
   const [search, setSearch] = useState('')
   const [activeFilter, setActiveFilter] = useState<string | null>(null)
+  const isMobile = useIsMobile()
 
   const filtered = rappers
     .filter(r => activeFilter ? r.category === activeFilter : true)
@@ -34,6 +37,8 @@ export default function Sidebar({ rappers, onSelectRapper, selectedRapper }: Sid
       r.city.toLowerCase().includes(search.toLowerCase())
     )
     .sort((a, b) => b.activity_score - a.activity_score)
+
+  const mobileHidden = isMobile && !mobileOpen
 
   return (
     <div style={{
@@ -49,10 +54,27 @@ export default function Sidebar({ rappers, onSelectRapper, selectedRapper }: Sid
       flexDirection: 'column',
       padding: '16px',
       overflowY: 'auto',
+      transform: mobileHidden ? 'translateX(-100%)' : 'translateX(0)',
+      transition: 'transform 0.3s ease',
     }}>
 
+      {/* Bouton fermer — mobile uniquement */}
+      {isMobile && (
+        <button
+          onClick={onClose}
+          style={{
+            position: 'absolute', top: '12px', right: '12px',
+            width: '32px', height: '32px', borderRadius: '50%',
+            background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)',
+            color: 'white', cursor: 'pointer', fontSize: '14px',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}
+          aria-label="Fermer"
+        >✕</button>
+      )}
+
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', paddingRight: isMobile ? '40px' : 0 }}>
         <h2 style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '0.15em', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase' }}>
           🎯 Radar
         </h2>

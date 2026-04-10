@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
+import { useIsMobile } from '@/lib/useIsMobile'
 
 const supabase = createSupabaseClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -22,7 +23,9 @@ export default function MessagesPage() {
   const [groupName, setGroupName] = useState('')
   const [selectedForGroup, setSelectedForGroup] = useState<any[]>([])
   const [creating, setCreating] = useState(false)
+  const [mobileShowChat, setMobileShowChat] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const isMobile = useIsMobile()
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -66,6 +69,7 @@ export default function MessagesPage() {
 
   const openConversation = async (conv: any) => {
     setActiveConv(conv)
+    if (isMobile) setMobileShowChat(true)
     await loadMessages(conv.id)
 
     // Realtime
@@ -154,8 +158,15 @@ export default function MessagesPage() {
   return (
     <div style={{ minHeight: '100vh', background: '#060606', color: 'white', paddingTop: '60px', display: 'flex' }}>
 
-      {/* Sidebar gauche */}
-      <div style={{ width: '320px', borderRight: '1px solid rgba(255,255,255,0.07)', display: 'flex', flexDirection: 'column', height: 'calc(100vh - 60px)', position: 'sticky', top: '60px' }}>
+      {/* Sidebar gauche — cachée sur mobile si chat ouvert */}
+      <div style={{
+        width: isMobile ? '100%' : '320px',
+        borderRight: isMobile ? 'none' : '1px solid rgba(255,255,255,0.07)',
+        display: isMobile && mobileShowChat ? 'none' : 'flex',
+        flexDirection: 'column',
+        height: 'calc(100vh - 60px)',
+        position: 'sticky', top: '60px',
+      }}>
 
         {/* Tabs */}
         <div style={{ display: 'flex', padding: '16px', gap: '4px', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
@@ -302,12 +313,23 @@ export default function MessagesPage() {
         )}
       </div>
 
-      {/* Zone de messages */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: 'calc(100vh - 60px)', position: 'sticky', top: '60px' }}>
+      {/* Zone de messages — cachée sur mobile si liste affichée */}
+      <div style={{
+        flex: 1, display: isMobile && !mobileShowChat ? 'none' : 'flex',
+        flexDirection: 'column',
+        height: 'calc(100vh - 60px)', position: 'sticky', top: '60px',
+        width: isMobile ? '100%' : undefined,
+      }}>
         {activeConv ? (
           <>
             {/* Header conv */}
-            <div style={{ padding: '16px 24px', borderBottom: '1px solid rgba(255,255,255,0.07)', display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <div style={{ padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.07)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              {isMobile && (
+                <button
+                  onClick={() => setMobileShowChat(false)}
+                  style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.6)', fontSize: '20px', cursor: 'pointer', padding: '4px 8px', flexShrink: 0 }}
+                >←</button>
+              )}
               <div style={{ width: 40, height: 40, borderRadius: '50%', background: activeConv.type === 'group' ? '#a855f7' : '#E63946', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>
                 {activeConv.type === 'group' ? '👥' : getConvName(activeConv)[0]?.toUpperCase()}
               </div>

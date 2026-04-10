@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@supabase/supabase-js'
+import { useIsMobile } from '@/lib/useIsMobile'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -61,6 +62,7 @@ export default function BetsPage({ rappers }: Props) {
   const [selectedProject, setSelectedProject] = useState<any>(null)
   const [projectBetType, setProjectBetType] = useState('success')
   const [betMode, setBetMode] = useState<'trending' | 'charts' | 'project'>('trending')
+  const isMobile = useIsMobile()
 
   useEffect(() => {
     if (activeTab === 'Trending Songs' && trendingSongs.length === 0) {
@@ -126,26 +128,27 @@ export default function BetsPage({ rappers }: Props) {
 
   return (
     <div style={{ minHeight: '100vh', background: '#08080c', color: 'white', fontFamily: 'Inter, sans-serif', paddingTop: '60px' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '32px 24px' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: isMobile ? '16px 12px' : '32px 24px' }}>
 
-        <div style={{ marginBottom: '32px' }}>
-          <h1 style={{ fontSize: '32px', fontWeight: 900, letterSpacing: '-1px', marginBottom: '4px' }}>🎯 BET ON RAPPERS</h1>
+        <div style={{ marginBottom: '24px' }}>
+          <h1 style={{ fontSize: isMobile ? '24px' : '32px', fontWeight: 900, letterSpacing: '-1px', marginBottom: '4px' }}>🎯 BET ON RAPPERS</h1>
           <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '14px' }}>Mise sur les rappeurs marocains et multiplie tes Rivo</p>
         </div>
 
         {/* TABS */}
-        <div style={{ display: 'flex', gap: '4px', marginBottom: '32px', background: 'rgba(255,255,255,0.04)', borderRadius: '12px', padding: '4px', width: 'fit-content' }}>
+        <div style={{ display: 'flex', gap: '4px', marginBottom: '24px', background: 'rgba(255,255,255,0.04)', borderRadius: '12px', padding: '4px', overflowX: 'auto', WebkitOverflowScrolling: 'touch' as any }}>
           {['Trending Bets', 'Top Entries', 'Trending Songs', 'New Drops'].map(tab => (
             <button key={tab} onClick={() => { setActiveTab(tab); setSearch(''); setShowAll(false) }} style={{
-              padding: '10px 20px', borderRadius: '10px', border: 'none', cursor: 'pointer',
-              fontSize: '14px', fontWeight: 600,
+              padding: '10px 16px', borderRadius: '10px', border: 'none', cursor: 'pointer',
+              fontSize: isMobile ? '12px' : '14px', fontWeight: 600, whiteSpace: 'nowrap',
               background: activeTab === tab ? '#E63946' : 'transparent',
               color: activeTab === tab ? 'white' : 'rgba(255,255,255,0.4)',
+              flexShrink: 0,
             }}>{tab}</button>
           ))}
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: '32px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 400px', gap: '24px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
             {/* TRENDING BETS TAB */}
@@ -427,7 +430,7 @@ export default function BetsPage({ rappers }: Props) {
           </div>
 
           {/* FEATURED BET */}
-          <div style={{ position: 'sticky', top: '80px', height: 'fit-content' }}>
+          <div style={{ position: isMobile ? 'static' : 'sticky', top: '80px', height: 'fit-content' }}>
             <div style={{ background: 'rgba(15,15,25,0.95)', border: '1px solid rgba(230,57,70,0.2)', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 0 40px rgba(230,57,70,0.1)' }}>
               <div style={{ background: 'linear-gradient(135deg, rgba(230,57,70,0.2), transparent)', padding: '24px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                 <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>🎯 Featured Bet</p>

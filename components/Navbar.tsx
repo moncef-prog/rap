@@ -20,6 +20,7 @@ export default function Navbar() {
   const [loading, setLoading] = useState(false)
   const [user, setUser] = useState<any>(null)
   const [balance, setBalance] = useState<number | null>(null)
+  const [menuOpen, setMenuOpen] = useState(false)
   const pathname = usePathname()
 
   useEffect(() => {
@@ -48,9 +49,7 @@ export default function Navbar() {
     } else {
       const { data, error } = await supabase.auth.signUp({ email, password })
       if (error) { setError(error.message); setLoading(false); return }
-      if (data.user) {
-        await supabase.from('profiles').insert({ id: data.user.id, username, balance: 1000 })
-      }
+      if (data.user) await supabase.from('profiles').insert({ id: data.user.id, username, balance: 1000 })
       setShowModal(false)
     }
     setLoading(false)
@@ -60,12 +59,13 @@ export default function Navbar() {
     await supabase.auth.signOut()
     setUser(null)
     setBalance(null)
+    setMenuOpen(false)
   }
 
   const links = [
     { label: 'Carte', href: '/' },
-    { label: 'Rappers', href: '/bets' },
-    { label: 'league ', href: '/fantasy' },
+    { label: 'Paris', href: '/bets' },
+    { label: 'League', href: '/fantasy' },
     { label: 'Profil', href: '/profile' },
     { label: 'Messages', href: '/messages' },
   ]
@@ -74,81 +74,130 @@ export default function Navbar() {
     <>
       <nav style={{
         position: 'fixed', top: 0, left: 0, right: 0, height: '60px',
-        background: 'rgba(8,8,12,0.95)', backdropFilter: 'blur(20px)',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
-        display: 'flex', alignItems: 'center', padding: '0 24px', zIndex: 1000, gap: '32px',
+        background: 'rgba(6,6,6,0.98)', backdropFilter: 'blur(24px)',
+        borderBottom: '1px solid rgba(255,255,255,0.07)',
+        display: 'flex', alignItems: 'center', padding: '0 16px',
+        zIndex: 1000, boxShadow: '0 1px 0 rgba(230,57,70,0.15)',
       }}>
-        <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '20px' }}>🎤</span>
-          <span style={{ fontWeight: 800, fontSize: '16px', color: 'white', letterSpacing: '-0.5px' }}>
-           9ri9i<span style={{ color: '#E63946' }}>BET</span>
+        <Link href="/" style={{ textDecoration: 'none', marginRight: 'auto' }}>
+          <span style={{ fontWeight: 900, fontSize: '18px', letterSpacing: '-0.5px', color: 'white' }}>
+            9ri9i<span style={{ color: '#CC0000' }}>BET</span>
           </span>
         </Link>
 
-        <div style={{ display: 'flex', gap: '24px', marginLeft: '16px' }}>
+        {/* Desktop links */}
+        <div className="desktop-nav" style={{ display: 'flex', gap: '2px', marginRight: '16px' }}>
           {links.map(item => {
-            const active = pathname === item.href
+            const active = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href))
             return (
               <Link key={item.label} href={item.href} style={{
+                padding: '7px 14px', borderRadius: '8px',
                 color: active ? 'white' : 'rgba(255,255,255,0.45)',
                 textDecoration: 'none', fontSize: '14px', fontWeight: 600,
                 background: active ? 'rgba(230,57,70,0.12)' : 'transparent',
                 borderBottom: active ? '2px solid #E63946' : '2px solid transparent',
-                paddingBottom: '2px', transition: 'color 0.2s',
               }}>{item.label}</Link>
             )
           })}
         </div>
 
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '16px' }}>
-          {user && balance !== null && (
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 14px',
-              background: 'rgba(255,107,0,0.1)', border: '1px solid rgba(255,107,0,0.2)', borderRadius: '20px',
-            }}>
-              <span style={{ fontSize: '16px' }}>💊</span>
-              <span style={{ fontWeight: 700, fontSize: '14px', color: '#ff6b00' }}>{balance} Rivo</span>
-            </div>
-          )}
+        {/* Balance */}
+        {user && balance !== null && (
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px',
+            background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
+            borderRadius: '8px', marginRight: '10px',
+          }}>
+            <span style={{ fontSize: '13px' }}>💊</span>
+            <span style={{ fontWeight: 800, fontSize: '13px', color: 'white' }}>{balance.toLocaleString()}</span>
+          </div>
+        )}
+
+        {/* Desktop auth */}
+        <div className="desktop-nav">
           {user ? (
             <button onClick={handleLogout} style={{
-              padding: '8px 16px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)',
-              background: 'transparent', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', fontSize: '13px',
+              padding: '7px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.08)',
+              background: 'transparent', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', fontSize: '13px',
             }}>Déconnexion</button>
           ) : (
             <button onClick={() => setShowModal(true)} style={{
-              padding: '8px 20px', borderRadius: '20px', border: 'none',
-              background: 'linear-gradient(135deg, #ff6b00, #ff9500)', color: 'white',
-              cursor: 'pointer', fontSize: '13px', fontWeight: 700, boxShadow: '0 0 20px rgba(255,107,0,0.3)',
+              padding: '8px 16px', borderRadius: '8px', border: 'none',
+              background: '#E63946', color: 'white', cursor: 'pointer', fontSize: '13px', fontWeight: 700,
             }}>Se connecter</button>
           )}
         </div>
+
+        {/* Mobile hamburger */}
+        <button className="mobile-nav" onClick={() => setMenuOpen(!menuOpen)} style={{
+          background: 'rgba(255,255,255,0.06)', border: 'none', color: 'white',
+          width: 36, height: 36, borderRadius: '8px', cursor: 'pointer', fontSize: '18px',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          {menuOpen ? '✕' : '☰'}
+        </button>
       </nav>
 
+      {/* Mobile menu */}
+      {menuOpen && (
+        <div className="mobile-nav" style={{
+          position: 'fixed', top: '60px', left: 0, right: 0, bottom: 0,
+          background: 'rgba(6,6,6,0.98)', zIndex: 999, padding: '20px 16px',
+          display: 'flex', flexDirection: 'column', gap: '8px',
+        }}>
+          {links.map(item => (
+            <Link key={item.label} href={item.href} onClick={() => setMenuOpen(false)} style={{
+              padding: '16px 20px', borderRadius: '12px',
+              color: pathname === item.href ? 'white' : 'rgba(255,255,255,0.6)',
+              textDecoration: 'none', fontSize: '16px', fontWeight: 700,
+              background: pathname === item.href ? 'rgba(230,57,70,0.12)' : 'rgba(255,255,255,0.04)',
+              border: `1px solid ${pathname === item.href ? 'rgba(230,57,70,0.3)' : 'rgba(255,255,255,0.06)'}`,
+            }}>{item.label}</Link>
+          ))}
+
+          <div style={{ marginTop: 'auto' }}>
+            {user ? (
+              <button onClick={handleLogout} style={{
+                width: '100%', padding: '14px', borderRadius: '12px',
+                border: '1px solid rgba(255,255,255,0.1)', background: 'transparent',
+                color: 'rgba(255,255,255,0.5)', cursor: 'pointer', fontSize: '15px', fontWeight: 600,
+              }}>Déconnexion</button>
+            ) : (
+              <button onClick={() => { setShowModal(true); setMenuOpen(false) }} style={{
+                width: '100%', padding: '14px', borderRadius: '12px', border: 'none',
+                background: '#E63946', color: 'white', cursor: 'pointer', fontSize: '15px', fontWeight: 700,
+              }}>Se connecter</button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Modal auth */}
       {showModal && (
         <div onClick={(e) => e.target === e.currentTarget && setShowModal(false)} style={{
-          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)',
-          zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(12px)',
+          zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px',
         }}>
           <div style={{
-            width: '400px', background: 'rgba(15,15,25,0.98)', border: '1px solid rgba(255,107,0,0.2)',
-            borderRadius: '24px', padding: '40px', boxShadow: '0 0 60px rgba(255,107,0,0.15)',
+            width: '100%', maxWidth: '400px', background: '#0d0d0d',
+            border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px', padding: '32px',
+            boxShadow: '0 40px 80px rgba(0,0,0,0.8)',
           }}>
             <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-              <h2 style={{ fontSize: '22px', fontWeight: 800, marginBottom: '6px' }}>
-                🏆 9ri9i<span style={{ color: '#E63946' }}>BET</span> League
+              <h2 style={{ fontSize: '22px', fontWeight: 900, marginBottom: '6px' }}>
+                9ri9i<span style={{ color: '#E63946' }}>BET</span>
               </h2>
-              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>
-                {isLogin ? 'Connecte-toi pour parier' : 'Crée ton compte — 1000 💊 Rivo offerts'}
+              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)' }}>
+                {isLogin ? 'Connecte-toi pour parier' : '1000 💊 Rivo offerts à l\'inscription'}
               </p>
             </div>
 
-            <div style={{ display: 'flex', background: 'rgba(255,255,255,0.04)', borderRadius: '12px', padding: '4px', marginBottom: '20px' }}>
+            <div style={{ display: 'flex', background: 'rgba(255,255,255,0.04)', borderRadius: '10px', padding: '4px', marginBottom: '20px' }}>
               {['Connexion', 'Inscription'].map((tab, i) => (
                 <button key={tab} onClick={() => setIsLogin(i === 0)} style={{
-                  flex: 1, padding: '10px', borderRadius: '10px', border: 'none', cursor: 'pointer',
-                  fontSize: '14px', fontWeight: 600,
-                  background: isLogin === (i === 0) ? '#ff6b00' : 'transparent',
+                  flex: 1, padding: '9px', borderRadius: '8px', border: 'none', cursor: 'pointer',
+                  fontSize: '14px', fontWeight: 700,
+                  background: isLogin === (i === 0) ? '#E63946' : 'transparent',
                   color: isLogin === (i === 0) ? 'white' : 'rgba(255,255,255,0.4)',
                 }}>{tab}</button>
               ))}
@@ -165,18 +214,28 @@ export default function Navbar() {
                 style={{ padding: '13px 16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.04)', color: 'white', fontSize: '14px', outline: 'none' }} />
             </div>
 
-            {error && <p style={{ color: '#ff4444', fontSize: '13px', marginBottom: '12px', textAlign: 'center' }}>{error}</p>}
+            {error && <p style={{ color: '#E63946', fontSize: '13px', marginBottom: '12px', textAlign: 'center' }}>{error}</p>}
 
             <button onClick={handleSubmit} disabled={loading} style={{
-              width: '100%', padding: '14px', borderRadius: '12px', border: 'none', cursor: 'pointer',
-              fontSize: '15px', fontWeight: 700, background: 'linear-gradient(135deg, #ff6b00, #ff9500)',
-              color: 'white', boxShadow: '0 4px 20px rgba(255,107,0,0.3)',
+              width: '100%', padding: '13px', borderRadius: '10px', border: 'none',
+              background: '#E63946', color: 'white', fontWeight: 800, fontSize: '15px', cursor: 'pointer',
             }}>
               {loading ? '...' : isLogin ? 'Se connecter' : 'Créer mon compte'}
             </button>
           </div>
         </div>
       )}
+
+      <style>{`
+        @media (max-width: 768px) {
+          .desktop-nav { display: none !important; }
+          .mobile-nav { display: flex !important; }
+        }
+        @media (min-width: 769px) {
+          .mobile-nav { display: none !important; }
+          .desktop-nav { display: flex !important; }
+        }
+      `}</style>
     </>
   )
 }

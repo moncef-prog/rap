@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { createClient } from '@supabase/supabase-js'
+import { useIsMobile } from '@/lib/useIsMobile'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -56,6 +57,7 @@ export default function RapperDashboard({ rapper, bets: initialBets }: Props) {
   const [bets, setBets] = useState(initialBets)
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
+  const isMobile = useIsMobile()
   const color = categoryColors[rapper.category] ?? '#E63946'
   const chartData = generateChartData(rapper.activity_score)
   const multiplier = (rapper.activity_score / 100 + 0.8).toFixed(1)
@@ -119,13 +121,14 @@ export default function RapperDashboard({ rapper, bets: initialBets }: Props) {
       <div style={{
         background: 'linear-gradient(180deg, ' + color + '15 0%, transparent 100%)',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
-        padding: '40px',
+        padding: isMobile ? '20px 16px' : '40px',
         display: 'flex',
-        alignItems: 'center',
-        gap: '32px',
+        flexDirection: isMobile ? 'column' : 'row',
+        alignItems: isMobile ? 'flex-start' : 'center',
+        gap: isMobile ? '16px' : '32px',
       }}>
         {/* Boutons navigation */}
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
           <a href={`/back/`} style={{
             color: 'rgba(255,255,255,0.4)', textDecoration: 'none', fontSize: '14px',
             padding: '8px 14px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.08)',
@@ -187,7 +190,7 @@ export default function RapperDashboard({ rapper, bets: initialBets }: Props) {
           </div>
         </div>
 
-        <div style={{ marginLeft: 'auto', textAlign: 'center' }}>
+        <div style={{ marginLeft: isMobile ? 0 : 'auto', textAlign: isMobile ? 'left' : 'center' }}>
           <motion.div
             initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3 }}
             style={{ fontSize: '64px', fontWeight: 900, color: color, lineHeight: 1, textShadow: '0 0 40px ' + color + '88' }}
@@ -196,7 +199,7 @@ export default function RapperDashboard({ rapper, bets: initialBets }: Props) {
         </div>
       </div>
 
-      <div style={{ padding: '40px', display: 'grid', gridTemplateColumns: '1fr 380px', gap: '32px' }}>
+      <div style={{ padding: isMobile ? '16px' : '40px', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 380px', gap: '24px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
@@ -225,7 +228,7 @@ export default function RapperDashboard({ rapper, bets: initialBets }: Props) {
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-            style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+            style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '16px' }}>
             {[
               { label: 'Total misé', value: totalBets + ' 💊', color: '#E63946' },
               { label: 'Paris actifs', value: bets.filter(b => b.status === 'active').length.toString(), color: '#00ff87' },
@@ -242,8 +245,8 @@ export default function RapperDashboard({ rapper, bets: initialBets }: Props) {
         <motion.div initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}
           style={{
             background: 'rgba(15,15,25,0.95)', border: '1px solid ' + color + '33',
-            borderRadius: '24px', padding: '28px', height: 'fit-content',
-            position: 'sticky', top: '80px', boxShadow: '0 0 40px ' + color + '10',
+            borderRadius: '24px', padding: isMobile ? '20px 16px' : '28px', height: 'fit-content',
+            position: isMobile ? 'static' : 'sticky', top: '80px', boxShadow: '0 0 40px ' + color + '10',
           }}>
           <h3 style={{ fontSize: '18px', fontWeight: 800, marginBottom: '6px' }}>🔥 Parier sur {rapper.name}</h3>
           <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', marginBottom: '24px' }}>Mise ta balance et multiplie tes gains</p>
