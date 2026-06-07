@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import { useIsMobile } from '@/lib/useIsMobile'
+import type { Song, UpcomingProject, Rapper } from '@/types'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -31,16 +32,6 @@ const chartsBetTypes = [
   { key: 'exit_charts', label: '💨 Va sortir du classement', multiplier: 2.8 },
 ]
 
-interface Rapper {
-  id: string
-  name: string
-  slug: string
-  city: string
-  category: string
-  activity_score: number
-  profile_image_url?: string
-}
-
 interface Props {
   rappers: Rapper[]
 }
@@ -55,28 +46,31 @@ export default function BetsPage({ rappers }: Props) {
   const [activeTab, setActiveTab] = useState('Trending Bets')
   const [search, setSearch] = useState('')
   const [showAll, setShowAll] = useState(false)
-  const [trendingSongs, setTrendingSongs] = useState<any[]>([])
+  const [trendingSongs, setTrendingSongs] = useState<Song[]>([])
   const [loadingSongs, setLoadingSongs] = useState(false)
-  const [upcomingProjects, setUpcomingProjects] = useState<any[]>([])
+  const [upcomingProjects, setUpcomingProjects] = useState<UpcomingProject[]>([])
   const [loadingProjects, setLoadingProjects] = useState(false)
-  const [selectedProject, setSelectedProject] = useState<any>(null)
+  const [selectedProject, setSelectedProject] = useState<UpcomingProject | null>(null)
   const [projectBetType, setProjectBetType] = useState('success')
   const [betMode, setBetMode] = useState<'trending' | 'charts' | 'project'>('trending')
   const isMobile = useIsMobile()
 
   useEffect(() => {
     if (activeTab === 'Trending Songs' && trendingSongs.length === 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLoadingSongs(true)
       fetch('/api/trending-songs')
         .then(r => r.json())
         .then(data => { setTrendingSongs(data.tracks ?? []); setLoadingSongs(false) })
     }
     if (activeTab === 'New Drops' && upcomingProjects.length === 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLoadingProjects(true)
       fetch('/api/upcoming-projects')
         .then(r => r.json())
         .then(data => { setUpcomingProjects(data.projects ?? []); setLoadingProjects(false) })
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab])
 
   const filteredRappers = rappers
@@ -88,10 +82,20 @@ export default function BetsPage({ rappers }: Props) {
 
   const displayedRappers = search.length > 0 ? filteredRappers : (showAll ? filteredRappers : filteredRappers.slice(0, 5))
 
+  type ProjectBetKey = 'success' | 'flop' | 'top1' | 'better' | 'international'
+  const projectOddsMap: Record<string, Record<ProjectBetKey, number>> = {
+    high: { success: 1.2, flop: 4.0, top1: 2.5, better: 1.4, international: 3.5 },
+    mid:  { success: 1.8, flop: 2.5, top1: 3.2, better: 2.0, international: 4.0 },
+    low:  { success: 2.5, flop: 1.5, top1: 4.5, better: 2.8, international: 5.0 },
+  }
+  const projectLabels: Record<ProjectBetKey, string> = {
+    success: '🔥 Succès', flop: '💀 Flop', better: '📈 Dépasse son dernier',
+    top1: '👑 Top 1 Maroc', international: '🌍 Buzz international',
+  }
+
   const getProjectOdds = (score: number, type: string): number => {
-    if (score >= 90) return ({ success: 1.2, flop: 4.0, top1: 2.5, better: 1.4, international: 3.5 } as any)[type] ?? 1.5
-    if (score >= 70) return ({ success: 1.8, flop: 2.5, top1: 3.2, better: 2.0, international: 4.0 } as any)[type] ?? 2.0
-    return ({ success: 2.5, flop: 1.5, top1: 4.5, better: 2.8, international: 5.0 } as any)[type] ?? 2.5
+    const key = score >= 90 ? 'high' : score >= 70 ? 'mid' : 'low'
+    return projectOddsMap[key][type as ProjectBetKey] ?? 1.5
   }
 
   const multiplier = betMode === 'project'
@@ -101,7 +105,7 @@ export default function BetsPage({ rappers }: Props) {
       : selectedBetType.multiplier
 
   const betLabel = betMode === 'project'
-    ? ({ success: '🔥 Succès', flop: '💀 Flop', better: '📈 Dépasse son dernier', top1: '👑 Top 1 Maroc', international: '🌍 Buzz international' } as any)[projectBetType]
+    ? projectLabels[projectBetType as ProjectBetKey]
     : betMode === 'charts'
       ? selectedChartsBet.label
       : selectedBetType.icon + ' ' + selectedBetType.label
@@ -109,18 +113,31 @@ export default function BetsPage({ rappers }: Props) {
   const placeBet = async () => {
     setLoading(true)
     setMessage('')
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { setMessage('❌ Connecte-toi pour parier'); setLoading(false); return }
-    const { data: profile } = await supabase.from('profiles').select('balance').eq('id', user.id).single()
-    if (!profile || profile.balance < amount) { setMessage('❌ Balance insuffisante'); setLoading(false); return }
-    await supabase.from('profiles').update({ balance: profile.balance - amount }).eq('id', user.id)
-    await supabase.from('bets').insert({
-      user_id: user.id,
-      rapper_id: selectedRapper.id,
-      amount, multiplier, status: 'active',
-      project_id: selectedProject?.id ?? null,
-      bet_type: betMode === 'project' ? projectBetType : betMode === 'charts' ? selectedChartsBet.key : selectedBetType.key,
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) { setMessage('❌ Connecte-toi pour parier'); setLoading(false); return }
+
+    const betType = betMode === 'project' ? projectBetType : betMode === 'charts' ? selectedChartsBet.key : selectedBetType.key
+    const res = await fetch('/api/bets/place', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({
+        rapper_id: selectedRapper.id,
+        amount,
+        mode: betMode,
+        bet_type: betType,
+        project_id: selectedProject?.id ?? null,
+      }),
     })
+
+    const data = await res.json()
+    if (!res.ok) {
+      setMessage(data.error === 'Insufficient balance' ? '❌ Balance insuffisante' : '❌ ' + (data.error ?? 'Erreur'))
+      setLoading(false)
+      return
+    }
     setMessage('✅ Pari placé !')
     setLoading(false)
     setTimeout(() => { setMessage(''); window.location.reload() }, 1500)
@@ -136,7 +153,7 @@ export default function BetsPage({ rappers }: Props) {
         </div>
 
         {/* TABS */}
-        <div style={{ display: 'flex', gap: '4px', marginBottom: '24px', background: 'rgba(255,255,255,0.04)', borderRadius: '12px', padding: '4px', overflowX: 'auto', WebkitOverflowScrolling: 'touch' as any }}>
+        <div style={{ display: 'flex', gap: '4px', marginBottom: '24px', background: 'rgba(255,255,255,0.04)', borderRadius: '12px', padding: '4px', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
           {['Trending Bets', 'Top Entries', 'Trending Songs', 'New Drops'].map(tab => (
             <button key={tab} onClick={() => { setActiveTab(tab); setSearch(''); setShowAll(false) }} style={{
               padding: '10px 16px', borderRadius: '10px', border: 'none', cursor: 'pointer',
@@ -361,7 +378,7 @@ export default function BetsPage({ rappers }: Props) {
                   <div style={{ padding: '40px', textAlign: 'center', color: 'rgba(255,255,255,0.3)' }}>Aucun projet</div>
                 ) : (
                   upcomingProjects.map((project, i) => {
-                    const color = (categoryColors as any)[project.rappers?.category] ?? '#E63946'
+                    const color = categoryColors[project.rappers?.category ?? ''] ?? '#E63946'
                     const score = project.rappers?.activity_score ?? 50
                     const isSelected = selectedProject?.id === project.id
 
@@ -379,7 +396,7 @@ export default function BetsPage({ rappers }: Props) {
                           display: 'flex', alignItems: 'center', gap: '16px', padding: '16px 24px', cursor: 'pointer',
                           background: isSelected ? 'rgba(230,57,70,0.05)' : 'transparent',
                           borderLeft: isSelected ? '3px solid #E63946' : '3px solid transparent',
-                        }} onClick={() => { setSelectedProject(isSelected ? null : project); if (!isSelected) { setSelectedRapper(project.rappers); setBetMode('project') } }}>
+                        }} onClick={() => { setSelectedProject(isSelected ? null : project); if (!isSelected && project.rappers) { setSelectedRapper(project.rappers as Rapper); setBetMode('project') } }}>
                           <div style={{ width: 48, height: 48, borderRadius: '50%', flexShrink: 0, overflow: 'hidden', border: '2px solid ' + color, background: color + '33', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             {project.rappers?.profile_image_url
                               ? <img src={project.rappers.profile_image_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -392,7 +409,7 @@ export default function BetsPage({ rappers }: Props) {
                               <span style={{ fontSize: '11px', color, background: color + '22', padding: '2px 8px', borderRadius: '10px' }}>{project.type}</span>
                               {score >= 80 && <span style={{ fontSize: '11px', color: '#E63946', background: 'rgba(230,57,70,0.1)', padding: '2px 8px', borderRadius: '10px' }}>🔥 Hype</span>}
                             </div>
-                            <p style={{ fontSize: '13px', color: 'white', fontWeight: 600, marginBottom: '2px' }}>"{project.title}"</p>
+                            <p style={{ fontSize: '13px', color: 'white', fontWeight: 600, marginBottom: '2px' }}>&ldquo;{project.title}&rdquo;</p>
                             <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)' }}>
                               {project.release_date_known && project.release_date ? '📅 ' + new Date(project.release_date).toLocaleDateString('fr-FR') : '📅 Date TBA'} · Score : <span style={{ color }}>{score}</span>
                             </p>

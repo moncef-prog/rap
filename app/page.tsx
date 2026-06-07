@@ -1,4 +1,4 @@
-export const revalidate = 0
+export const revalidate = 60
 
 import { createClient } from '@supabase/supabase-js'
 import AppShell from '@/components/AppShell'

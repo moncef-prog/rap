@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { useRouter } from 'next/navigation'
 import LeaguePage from '@/components/LeaguePage'
+import type { Rapper, FantasyTeam, FantasyTeamRapper } from '@/types'
 
 const supabase = createSupabaseClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -32,7 +33,8 @@ const positions = [
   { top: '30%', left: '70%', role: 'Attaquant' },
 ]
 
-function PlayerCard({ rapper, position }: { rapper: any; position: any }) {
+interface Position { top: string; left: string; role: string }
+function PlayerCard({ rapper, position }: { rapper: Rapper; position: Position }) {
   const color = categoryColors[rapper.category] ?? '#E63946'
   return (
     <div style={{
@@ -59,7 +61,7 @@ function PlayerCard({ rapper, position }: { rapper: any; position: any }) {
   )
 }
 
-function FootballPitch({ team }: { team: any[] }) {
+function FootballPitch({ team }: { team: Rapper[] }) {
   return (
     <div style={{
       position: 'relative', width: '100%', maxWidth: '500px', margin: '0 auto',
@@ -86,22 +88,15 @@ function FootballPitch({ team }: { team: any[] }) {
   )
 }
 
-export default function FantasyPage({ rappers }: { rappers: any[] }) {
+export default function FantasyPage({ rappers }: { rappers: Rapper[] }) {
   const router = useRouter()
-  const [team, setTeam] = useState<any[]>([])
+  const [team, setTeam] = useState<Rapper[]>([])
   const [budget, setBudget] = useState(BUDGET)
   const [saving, setSaving] = useState(false)
-  const [user, setUser] = useState<any>(null)
-  const [existingTeam, setExistingTeam] = useState<any>(null)
+  const [user, setUser] = useState<{ id: string } | null>(null)
+  const [existingTeam, setExistingTeam] = useState<FantasyTeam | null>(null)
   const [showPitch, setShowPitch] = useState(false)
   const [mainTab, setMainTab] = useState<'equipe' | 'ligues'>('equipe')
-
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      setUser(data.user)
-      if (data.user) loadExistingTeam(data.user.id)
-    })
-  }, [])
 
   const loadExistingTeam = async (userId: string) => {
     const { data: teamData } = await supabase
@@ -112,15 +107,23 @@ export default function FantasyPage({ rappers }: { rappers: any[] }) {
 
     if (teamData) {
       setExistingTeam(teamData)
-      const members = teamData.fantasy_team_rappers.map((r: any) => r.rappers)
+      const members = teamData.fantasy_team_rappers.map((r: FantasyTeamRapper) => r.rappers)
       setTeam(members)
-      const spent = teamData.fantasy_team_rappers.reduce((acc: number, r: any) => acc + r.purchase_price, 0)
+      const spent = teamData.fantasy_team_rappers.reduce((acc: number, r: FantasyTeamRapper) => acc + r.purchase_price, 0)
       setBudget(BUDGET - spent)
       if (members.length === 5) setShowPitch(true)
     }
   }
 
-  const addRapper = (rapper: any) => {
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      setUser(data.user)
+      if (data.user) loadExistingTeam(data.user.id)
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const addRapper = (rapper: Rapper) => {
     if (team.length >= 5) return
     if (team.find(r => r.id === rapper.id)) return
     const price = getRapperValue(rapper.activity_score)
@@ -129,7 +132,7 @@ export default function FantasyPage({ rappers }: { rappers: any[] }) {
     setBudget(budget - price)
   }
 
-  const removeRapper = (rapper: any) => {
+  const removeRapper = (rapper: Rapper) => {
     setTeam(team.filter(r => r.id !== rapper.id))
     setBudget(budget + getRapperValue(rapper.activity_score))
   }
@@ -181,7 +184,7 @@ export default function FantasyPage({ rappers }: { rappers: any[] }) {
             { key: 'equipe', label: '⚽ Mon Équipe' },
             { key: 'ligues', label: '🏆 Ligues & Défis' },
           ].map(t => (
-            <button key={t.key} onClick={() => setMainTab(t.key as any)} style={{
+            <button key={t.key} onClick={() => setMainTab(t.key as 'equipe' | 'ligues')} style={{
               padding: '10px 24px', borderRadius: '10px', border: 'none', cursor: 'pointer',
               fontSize: '14px', fontWeight: 600,
               background: mainTab === t.key ? '#E63946' : 'transparent',

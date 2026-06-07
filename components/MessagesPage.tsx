@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { useIsMobile } from '@/lib/useIsMobile'
+import type { Conversation, Message, Friendship, ProfileSearch } from '@/types'
 
 const supabase = createSupabaseClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -10,32 +11,23 @@ const supabase = createSupabaseClient(
 )
 
 export default function MessagesPage() {
-  const [user, setUser] = useState<any>(null)
-  const [conversations, setConversations] = useState<any[]>([])
-  const [friends, setFriends] = useState<any[]>([])
-  const [activeConv, setActiveConv] = useState<any>(null)
-  const [messages, setMessages] = useState<any[]>([])
+  const [user, setUser] = useState<{ id: string } | null>(null)
+  const [conversations, setConversations] = useState<Conversation[]>([])
+  const [friends, setFriends] = useState<Friendship[]>([])
+  const [activeConv, setActiveConv] = useState<Conversation | null>(null)
+  const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState('')
   const [sending, setSending] = useState(false)
   const [tab, setTab] = useState<'messages' | 'friends' | 'new'>('messages')
   const [searchUser, setSearchUser] = useState('')
-  const [searchResults, setSearchResults] = useState<any[]>([])
+  const [searchResults, setSearchResults] = useState<ProfileSearch[]>([])
   const [groupName, setGroupName] = useState('')
-  const [selectedForGroup, setSelectedForGroup] = useState<any[]>([])
+  const [selectedForGroup, setSelectedForGroup] = useState<ProfileSearch[]>([])
   const [creating, setCreating] = useState(false)
   const [mobileShowChat, setMobileShowChat] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const isMobile = useIsMobile()
 
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (data.user) {
-        setUser(data.user)
-        loadConversations(data.user.id)
-        loadFriends(data.user.id)
-      }
-    })
-  }, [])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -46,7 +38,8 @@ export default function MessagesPage() {
       .from('conversation_members')
       .select('conversations(*, conversation_members(profiles(username, id)))')
       .eq('user_id', userId)
-    setConversations(data?.map((d: any) => d.conversations) ?? [])
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    setConversations((data?.map((d: any) => d.conversations as Conversation) ?? []))
   }
 
   const loadFriends = async (userId: string) => {
@@ -58,6 +51,17 @@ export default function MessagesPage() {
     setFriends(data ?? [])
   }
 
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) {
+        setUser(data.user)
+        loadConversations(data.user.id)
+        loadFriends(data.user.id)
+      }
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const loadMessages = async (convId: string) => {
     const { data } = await supabase
       .from('messages')
@@ -67,7 +71,7 @@ export default function MessagesPage() {
     setMessages(data ?? [])
   }
 
-  const openConversation = async (conv: any) => {
+  const openConversation = async (conv: Conversation) => {
     setActiveConv(conv)
     if (isMobile) setMobileShowChat(true)
     await loadMessages(conv.id)
@@ -75,7 +79,7 @@ export default function MessagesPage() {
     // Realtime
     supabase.channel('messages-' + conv.id)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `conversation_id=eq.${conv.id}` },
-        (payload) => setMessages(prev => [...prev, payload.new])
+        (payload) => setMessages(prev => [...prev, payload.new as Message])
       ).subscribe()
   }
 
@@ -104,11 +108,13 @@ export default function MessagesPage() {
   }
 
   const sendFriendRequest = async (receiverId: string) => {
+    if (!user) return
     await supabase.from('friendships').insert({ sender_id: user.id, receiver_id: receiverId, status: 'pending' })
     setSearchResults(prev => prev.filter(u => u.id !== receiverId))
   }
 
   const acceptFriend = async (friendshipId: string, senderId: string) => {
+    if (!user) return
     await supabase.from('friendships').update({ status: 'accepted' }).eq('id', friendshipId)
     loadFriends(user.id)
 
@@ -124,7 +130,7 @@ export default function MessagesPage() {
   }
 
   const createGroup = async () => {
-    if (!groupName.trim() || selectedForGroup.length === 0) return
+    if (!user || !groupName.trim() || selectedForGroup.length === 0) return
     setCreating(true)
     const { data: conv } = await supabase.from('conversations').insert({ type: 'group', name: groupName, created_by: user.id }).select().single()
     if (conv) {
@@ -140,14 +146,14 @@ export default function MessagesPage() {
     setCreating(false)
   }
 
-  const getConvName = (conv: any) => {
-    if (conv.type === 'group') return conv.name
-    const other = conv.conversation_members?.find((m: any) => m.profiles?.id !== user?.id)
+  const getConvName = (conv: Conversation) => {
+    if (conv.name) return conv.name
+    const other = conv.conversation_members?.find(m => m.profiles?.id !== user?.id)
     return other?.profiles?.username ?? 'Conversation'
   }
 
-  const pendingRequests = friends.filter((f: any) => f.receiver_id === user?.id && f.status === 'pending')
-  const acceptedFriends = friends.filter((f: any) => f.status === 'accepted')
+  const pendingRequests = friends.filter(f => f.receiver_id === user?.id && f.status === 'pending')
+  const acceptedFriends = friends.filter(f => f.status === 'accepted')
 
   if (!user) return (
     <div style={{ minHeight: '100vh', background: '#060606', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)' }}>
@@ -175,7 +181,7 @@ export default function MessagesPage() {
             { key: 'friends', label: '👥' },
             { key: 'new', label: '✏️' },
           ].map(t => (
-            <button key={t.key} onClick={() => setTab(t.key as any)} style={{
+            <button key={t.key} onClick={() => setTab(t.key as 'messages' | 'friends' | 'new')} style={{
               flex: 1, padding: '10px', borderRadius: '10px', border: 'none', cursor: 'pointer',
               fontSize: '18px',
               background: tab === t.key ? '#E63946' : 'rgba(255,255,255,0.04)',
@@ -224,7 +230,7 @@ export default function MessagesPage() {
             {pendingRequests.length > 0 && (
               <div style={{ marginBottom: '20px' }}>
                 <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', fontWeight: 700, marginBottom: '10px' }}>DEMANDES EN ATTENTE</p>
-                {pendingRequests.map((f: any) => (
+                {pendingRequests.map((f) => (
                   <div key={f.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
                     <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#E63946', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 900 }}>
                       {f.sender?.username?.[0]?.toUpperCase()}
@@ -238,9 +244,9 @@ export default function MessagesPage() {
 
             <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', fontWeight: 700, marginBottom: '10px' }}>MES AMIS ({acceptedFriends.length})</p>
             {acceptedFriends.length === 0 ? (
-              <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '13px', textAlign: 'center', padding: '20px' }}>Aucun ami pour l'instant</p>
+              <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '13px', textAlign: 'center', padding: '20px' }}>Aucun ami pour l&apos;instant</p>
             ) : (
-              acceptedFriends.map((f: any) => {
+              acceptedFriends.map((f) => {
                 const friend = f.sender_id === user.id ? f.receiver : f.sender
                 return (
                   <div key={f.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
@@ -279,9 +285,10 @@ export default function MessagesPage() {
               style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.04)', color: 'white', fontSize: '13px', outline: 'none', marginBottom: '10px', boxSizing: 'border-box' }} />
 
             <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', marginBottom: '8px' }}>Ajouter des amis :</p>
-            {acceptedFriends.map((f: any) => {
+            {acceptedFriends.map((f) => {
               const friend = f.sender_id === user.id ? f.receiver : f.sender
-              const isSelected = selectedForGroup.find(s => s.id === friend?.id)
+              if (!friend) return null
+              const isSelected = selectedForGroup.find(s => s.id === friend.id)
               return (
                 <div key={f.id} onClick={() => {
                   if (isSelected) setSelectedForGroup(prev => prev.filter(s => s.id !== friend.id))

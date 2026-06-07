@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
+import type { League, LeagueMember } from '@/types'
 
 const supabase = createSupabaseClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -13,8 +14,8 @@ function generateCode() {
 }
 
 export default function LeaguePage() {
-  const [user, setUser] = useState<any>(null)
-  const [myLeagues, setMyLeagues] = useState<any[]>([])
+  const [user, setUser] = useState<{ id: string } | null>(null)
+  const [myLeagues, setMyLeagues] = useState<(LeagueMember & { leagues: League })[]>([])
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState<'mes-ligues' | 'creer' | 'rejoindre'>('mes-ligues')
 
@@ -29,8 +30,16 @@ export default function LeaguePage() {
   const [joinMsg, setJoinMsg] = useState('')
 
   // Membres ligue sélectionnée
-  const [selectedLeague, setSelectedLeague] = useState<any>(null)
-  const [members, setMembers] = useState<any[]>([])
+  const [selectedLeague, setSelectedLeague] = useState<League | null>(null)
+  const [members, setMembers] = useState<LeagueMember[]>([])
+
+  const loadMyLeagues = async (userId: string) => {
+    const { data } = await supabase
+      .from('league_members')
+      .select('*, leagues(*, profiles(username))')
+      .eq('user_id', userId)
+    setMyLeagues(data ?? [])
+  }
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -40,15 +49,8 @@ export default function LeaguePage() {
       }
       setLoading(false)
     })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  const loadMyLeagues = async (userId: string) => {
-    const { data } = await supabase
-      .from('league_members')
-      .select('*, leagues(*, profiles(username))')
-      .eq('user_id', userId)
-    setMyLeagues(data ?? [])
-  }
 
   const loadMembers = async (leagueId: string) => {
     const { data } = await supabase
@@ -59,7 +61,7 @@ export default function LeaguePage() {
   }
 
   const createLeague = async () => {
-    if (!leagueName.trim()) return
+    if (!user || !leagueName.trim()) return
     setCreating(true)
     const code = generateCode()
     const { data, error } = await supabase.from('leagues').insert({
@@ -76,7 +78,7 @@ export default function LeaguePage() {
   }
 
   const joinLeague = async () => {
-    if (!joinCode.trim()) return
+    if (!user || !joinCode.trim()) return
     setJoining(true)
     const { data: league, error } = await supabase
       .from('leagues').select('*').eq('code', joinCode.toUpperCase()).single()
@@ -94,7 +96,7 @@ export default function LeaguePage() {
     setJoining(false)
   }
 
-  const openLeague = async (league: any) => {
+  const openLeague = async (league: League) => {
     setSelectedLeague(league)
     await loadMembers(league.id)
   }
@@ -117,7 +119,7 @@ export default function LeaguePage() {
       <div style={{ marginBottom: '20px' }}>
         <h2 style={{ fontSize: '22px', fontWeight: 900, marginBottom: '4px' }}>🏆 {selectedLeague.name}</h2>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>Code d'invitation :</span>
+          <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>Code d&apos;invitation :</span>
           <span style={{
             fontFamily: 'monospace', fontWeight: 800, fontSize: '16px', letterSpacing: '3px',
             color: '#E63946', background: 'rgba(230,57,70,0.1)', padding: '4px 12px', borderRadius: '8px',
@@ -185,7 +187,7 @@ export default function LeaguePage() {
           { key: 'creer', label: '➕ Créer' },
           { key: 'rejoindre', label: '🔗 Rejoindre' },
         ].map(t => (
-          <button key={t.key} onClick={() => setTab(t.key as any)} style={{
+          <button key={t.key} onClick={() => setTab(t.key as 'mes-ligues' | 'creer' | 'rejoindre')} style={{
             padding: '10px 20px', borderRadius: '10px', border: 'none', cursor: 'pointer',
             fontSize: '14px', fontWeight: 600,
             background: tab === t.key ? '#E63946' : 'transparent',
@@ -200,7 +202,7 @@ export default function LeaguePage() {
           {myLeagues.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '48px', color: 'rgba(255,255,255,0.3)' }}>
               <p style={{ fontSize: '40px', marginBottom: '12px' }}>🏆</p>
-              <p style={{ fontSize: '16px', marginBottom: '8px' }}>Aucune ligue pour l'instant</p>
+              <p style={{ fontSize: '16px', marginBottom: '8px' }}>Aucune ligue pour l&apos;instant</p>
               <p style={{ fontSize: '13px' }}>Crée ou rejoins une ligue pour jouer avec tes amis</p>
             </div>
           ) : (

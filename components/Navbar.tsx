@@ -18,10 +18,15 @@ export default function Navbar() {
   const [username, setUsername] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<{ id: string; email?: string } | null>(null)
   const [balance, setBalance] = useState<number | null>(null)
   const [menuOpen, setMenuOpen] = useState(false)
   const pathname = usePathname()
+
+  const fetchBalance = async (userId: string) => {
+    const { data } = await supabase.from('profiles').select('balance').eq('id', userId).single()
+    if (data) setBalance(data.balance)
+  }
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -32,12 +37,8 @@ export default function Navbar() {
       setUser(session?.user ?? null)
       if (session?.user) fetchBalance(session.user.id)
     })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  const fetchBalance = async (userId: string) => {
-    const { data } = await supabase.from('profiles').select('balance').eq('id', userId).single()
-    if (data) setBalance(data.balance)
-  }
 
   const handleSubmit = async () => {
     setLoading(true)

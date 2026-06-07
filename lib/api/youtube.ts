@@ -1,8 +1,7 @@
-const API_KEY = process.env.YOUTUBE_API_KEY!
-
 export async function getChannelStats(channelId: string) {
+  const apiKey = process.env.YOUTUBE_API_KEY!
   const res = await fetch(
-    'https://www.googleapis.com/youtube/v3/channels?part=statistics,snippet&id=' + channelId + '&key=' + API_KEY
+    'https://www.googleapis.com/youtube/v3/channels?part=statistics,snippet&id=' + channelId + '&key=' + apiKey
   )
   const data = await res.json()
   const channel = data.items?.[0]
@@ -18,8 +17,9 @@ export async function getChannelStats(channelId: string) {
 }
 
 export async function searchYoutubeChannel(name: string) {
+  const apiKey = process.env.YOUTUBE_API_KEY!
   const res = await fetch(
-    'https://www.googleapis.com/youtube/v3/search?part=snippet&q=' + encodeURIComponent(name) + '&type=channel&maxResults=1&key=' + API_KEY
+    'https://www.googleapis.com/youtube/v3/search?part=snippet&q=' + encodeURIComponent(name) + '&type=channel&maxResults=1&key=' + apiKey
   )
   const data = await res.json()
   const channel = data.items?.[0]

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { useRouter } from 'next/navigation'
+import type { Rapper, Profile, Bet, FantasyTeam, FantasyTeamRapper } from '@/types'
 
 const supabase = createSupabaseClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -13,21 +14,13 @@ const categoryColors: Record<string, string> = {
   new_gen: '#00ff87', mainstream: '#E63946', old_school: '#3b82f6', underground: '#a855f7',
 }
 
-export default function ProfilePage({ rappers }: { rappers: any[] }) {
+export default function ProfilePage({ rappers }: { rappers: Rapper[] }) {
   const router = useRouter()
-  const [user, setUser] = useState<any>(null)
-  const [profile, setProfile] = useState<any>(null)
-  const [bets, setBets] = useState<any[]>([])
-  const [fantasyTeam, setFantasyTeam] = useState<any>(null)
+  const [user, setUser] = useState<{ id: string; email?: string } | null>(null)
+  const [profile, setProfile] = useState<Profile | null>(null)
+  const [bets, setBets] = useState<(Bet & { rappers: Pick<Rapper, 'name' | 'profile_image_url' | 'category'> | null })[]>([])
+  const [fantasyTeam, setFantasyTeam] = useState<FantasyTeam | null>(null)
   const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (!data.user) { router.push('/'); return }
-      setUser(data.user)
-      loadAll(data.user.id)
-    })
-  }, [])
 
   const loadAll = async (userId: string) => {
     const [{ data: prof }, { data: betsData }, { data: teamData }] = await Promise.all([
@@ -40,6 +33,15 @@ export default function ProfilePage({ rappers }: { rappers: any[] }) {
     setFantasyTeam(teamData)
     setLoading(false)
   }
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (!data.user) { router.push('/'); return }
+      setUser(data.user)
+      loadAll(data.user.id)
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   if (loading) return (
     <div style={{ minHeight: '100vh', background: '#08080c', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
@@ -106,11 +108,11 @@ export default function ProfilePage({ rappers }: { rappers: any[] }) {
               <a href="/fantasy" style={{ fontSize: '13px', color: '#E63946', textDecoration: 'none' }}>Modifier →</a>
             </div>
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-              {fantasyTeam.fantasy_team_rappers.map((member: any) => {
+              {fantasyTeam.fantasy_team_rappers.map((member: FantasyTeamRapper, idx: number) => {
                 const rapper = member.rappers
                 const color = categoryColors[rapper.category] ?? '#E63946'
                 return (
-                  <div key={member.id} style={{
+                  <div key={member.id ?? idx} style={{
                     display: 'flex', alignItems: 'center', gap: '10px',
                     padding: '10px 14px', background: color + '11',
                     border: '1px solid ' + color + '33', borderRadius: '12px',
@@ -142,11 +144,11 @@ export default function ProfilePage({ rappers }: { rappers: any[] }) {
         }}>
           <h2 style={{ fontSize: '18px', fontWeight: 800, marginBottom: '16px' }}>📋 Historique des Paris</h2>
           {bets.length === 0 ? (
-            <p style={{ color: 'rgba(255,255,255,0.3)', textAlign: 'center', padding: '32px' }}>Aucun pari pour l'instant</p>
+            <p style={{ color: 'rgba(255,255,255,0.3)', textAlign: 'center', padding: '32px' }}>Aucun pari pour l&apos;instant</p>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {bets.map(bet => {
-                const color = categoryColors[bet.rappers?.category] ?? '#E63946'
+                const color = categoryColors[bet.rappers?.category ?? ''] ?? '#E63946'
                 return (
                   <div key={bet.id} style={{
                     display: 'flex', alignItems: 'center', gap: '14px',

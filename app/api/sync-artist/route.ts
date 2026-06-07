@@ -1,42 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { getSpotifyToken } from '@/lib/api/spotify'
+import { calculateScore, calculateOdds } from '@/lib/utils/scoring'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 
-async function getSpotifyToken() {
-  const credentials = Buffer.from(
-    process.env.SPOTIFY_CLIENT_ID + ':' + process.env.SPOTIFY_CLIENT_SECRET
-  ).toString('base64')
+function parseSyncArtistBody(body: unknown): { rapper_slug: string } | null {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return null
 
-  const res = await fetch('https://accounts.spotify.com/api/token', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'Authorization': 'Basic ' + credentials,
-    },
-    body: 'grant_type=client_credentials',
-  })
-  const data = await res.json()
-  if (!data.access_token) throw new Error('Spotify auth failed: ' + JSON.stringify(data))
-  return data.access_token
-}
+  const rapperSlug = (body as Record<string, unknown>).rapper_slug
+  if (typeof rapperSlug !== 'string') return null
 
-function calculateScore(popularity: number, followers: number): number {
-  const score = (popularity * 0.6) + (Math.min(followers / 10000, 40))
-  return Math.min(Math.round(score), 99)
-}
+  const normalizedSlug = rapperSlug.trim().toLowerCase()
+  if (!SLUG_PATTERN.test(normalizedSlug)) return null
 
-function calculateOdds(score: number): number {
-  const odds = parseFloat((2.5 - (score / 100) * 1.5).toFixed(1))
-  return Math.max(odds, 1.1)
+  return { rapper_slug: normalizedSlug }
 }
 
 export async function POST(req: NextRequest) {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
   try {
-    const { rapper_slug } = await req.json()
+    let jsonBody: unknown
+    try {
+      jsonBody = await req.json()
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
+    }
+
+    const body = parseSyncArtistBody(jsonBody)
+    if (!body) {
+      return NextResponse.json({ error: 'Invalid rapper_slug' }, { status: 400 })
+    }
+
+    const { rapper_slug } = body
 
     const { data: rapper } = await supabase
       .from('rappers')
@@ -76,7 +75,8 @@ export async function POST(req: NextRequest) {
       odds,
       image,
     })
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 })
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

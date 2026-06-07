@@ -1,16 +1,14 @@
 import { NextResponse } from 'next/server'
+import { getSpotifyToken } from '@/lib/api/spotify'
 
-async function getSpotifyToken() {
-  const res = await fetch('https://accounts.spotify.com/api/token', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'Authorization': 'Basic ' + Buffer.from(process.env.SPOTIFY_CLIENT_ID + ':' + process.env.SPOTIFY_CLIENT_SECRET).toString('base64'),
-    },
-    body: 'grant_type=client_credentials',
-  })
-  const data = await res.json()
-  return data.access_token
+interface SpotifyTrack {
+  id: string
+  name: string
+  artists: { name: string }[]
+  album: { images: { url: string }[] }
+  popularity: number
+  preview_url: string | null
+  external_urls: { spotify: string }
 }
 
 export async function GET() {
@@ -23,7 +21,7 @@ export async function GET() {
     )
     const data = await res.json()
 
-    const tracks = data.tracks?.items?.map((track: any) => ({
+    const tracks = data.tracks?.items?.map((track: SpotifyTrack) => ({
       id: track.id,
       name: track.name,
       artist: track.artists[0]?.name,
@@ -34,7 +32,8 @@ export async function GET() {
     })) ?? []
 
     return NextResponse.json({ tracks })
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 })
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

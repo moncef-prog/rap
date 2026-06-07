@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { useRouter } from 'next/navigation'
+import type { Rapper, Post, Comment } from '@/types'
 
 const supabase = createSupabaseClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -17,13 +18,13 @@ const postTypeIcons: Record<string, string> = {
   text: '💬', image: '📸', announcement: '📢', poll: '📊', challenge: '🎯',
 }
 
-export default function CommunityPage({ rapper, posts, followersCount }: { rapper: any, posts: any[], followersCount: number }) {
+export default function CommunityPage({ rapper, posts, followersCount }: { rapper: Rapper, posts: Post[], followersCount: number }) {
   const router = useRouter()
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<{ id: string } | null>(null)
   const [isFollowing, setIsFollowing] = useState(false)
   const [followers, setFollowers] = useState(followersCount)
-  const [activePost, setActivePost] = useState<any>(null)
-  const [comments, setComments] = useState<any[]>([])
+  const [activePost, setActivePost] = useState<Post | null>(null)
+  const [comments, setComments] = useState<Comment[]>([])
   const [newComment, setNewComment] = useState('')
   const [loadingFollow, setLoadingFollow] = useState(false)
   const [postingComment, setPostingComment] = useState(false)
@@ -31,17 +32,18 @@ export default function CommunityPage({ rapper, posts, followersCount }: { rappe
   const [userVotes, setUserVotes] = useState<Record<string, number>>({})
   const color = categoryColors[rapper.category] ?? '#E63946'
 
+  const checkFollow = async (userId: string) => {
+    const { data } = await supabase.from('follows').select('id').eq('user_id', userId).eq('rapper_id', rapper.id).single()
+    setIsFollowing(!!data)
+  }
+
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       setUser(data.user)
       if (data.user) checkFollow(data.user.id)
     })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  const checkFollow = async (userId: string) => {
-    const { data } = await supabase.from('follows').select('id').eq('user_id', userId).eq('rapper_id', rapper.id).single()
-    setIsFollowing(!!data)
-  }
 
   const toggleFollow = async () => {
     if (!user) { router.push('/'); return }
@@ -58,7 +60,7 @@ export default function CommunityPage({ rapper, posts, followersCount }: { rappe
     setLoadingFollow(false)
   }
 
-  const openPost = async (post: any) => {
+  const openPost = async (post: Post) => {
     setActivePost(post)
     const { data } = await supabase.from('community_comments').select('*, profiles(username)').eq('post_id', post.id).order('created_at', { ascending: true })
     setComments(data ?? [])
@@ -154,7 +156,7 @@ export default function CommunityPage({ rapper, posts, followersCount }: { rappe
         {posts.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '80px 0', color: 'rgba(255,255,255,0.3)' }}>
             <p style={{ fontSize: '48px', marginBottom: '16px' }}>🎤</p>
-            <p style={{ fontSize: '18px', fontWeight: 700, marginBottom: '8px' }}>Aucun post pour l'instant</p>
+            <p style={{ fontSize: '18px', fontWeight: 700, marginBottom: '8px' }}>Aucun post pour l&apos;instant</p>
             <p style={{ fontSize: '14px' }}>La communauté de {rapper.name} est en train de se construire</p>
           </div>
         ) : (
@@ -199,7 +201,7 @@ export default function CommunityPage({ rapper, posts, followersCount }: { rappe
                   {/* Sondage */}
                   {post.type === 'poll' && post.poll_options && (
                     <div style={{ marginTop: '14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      {(JSON.parse(post.poll_options) as string[]).map((option, idx) => {
+                      {(Array.isArray(post.poll_options) ? post.poll_options : JSON.parse(post.poll_options as string) as string[]).map((option, idx) => {
                         const totalVotes = Object.values(pollVotes).reduce((a, b) => a + b, 0)
                         const voteCount = pollVotes[idx] ?? 0
                         const pct = totalVotes > 0 ? Math.round((voteCount / totalVotes) * 100) : 0

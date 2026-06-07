@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { useIsMobile } from '@/lib/useIsMobile'
+import type { Rapper, Back, BackGoal } from '@/types'
 
 const supabase = createSupabaseClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -27,9 +28,9 @@ function getBadge(amount: number, position: number) {
   return { label: 'Believer', color: '#3b82f6' }
 }
 
-export default function BackRapperPage({ rapper, backs, goals }: { rapper: any, backs: any[], goals: any[] }) {
-  const [user, setUser] = useState<any>(null)
-  const [userBack, setUserBack] = useState<any>(null)
+export default function BackRapperPage({ rapper, backs, goals }: { rapper: Rapper, backs: Back[], goals: BackGoal[] }) {
+  const [user, setUser] = useState<{ id: string } | null>(null)
+  const [userBack, setUserBack] = useState<Back | null>(null)
   const [selectedLevel, setSelectedLevel] = useState(levels[0])
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
@@ -54,33 +55,34 @@ export default function BackRapperPage({ rapper, backs, goals }: { rapper: any, 
     if (userBack) { setMessage('❌ Tu soutiens déjà cet artiste'); return }
     setLoading(true)
 
-    const { data: profile } = await supabase.from('profiles').select('balance').eq('id', user.id).single()
-    if (!profile || profile.balance < selectedLevel.amount) {
-      setMessage('❌ Balance insuffisante')
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) { setMessage('❌ Connecte-toi pour soutenir'); setLoading(false); return }
+
+    const res = await fetch('/api/back/place', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({
+        rapper_id: rapper.id,
+        level: selectedLevel.key,
+      }),
+    })
+
+    const data = await res.json()
+    if (!res.ok) {
+      const errorMessage = data.error === 'Insufficient balance'
+        ? '❌ Balance insuffisante'
+        : data.error === 'Already backed'
+          ? '❌ Tu soutiens déjà cet artiste'
+          : '❌ ' + (data.error ?? 'Erreur')
+      setMessage(errorMessage)
       setLoading(false)
       return
     }
 
-    const position = totalBackers + 1
-    const badge = getBadge(selectedLevel.amount, position)
-
-    await supabase.from('profiles').update({ balance: profile.balance - selectedLevel.amount }).eq('id', user.id)
-
-    await supabase.from('backs').insert({
-      user_id: user.id,
-      rapper_id: rapper.id,
-      amount: selectedLevel.amount,
-      level: selectedLevel.key,
-      badge: badge.label,
-    })
-
-    await supabase.from('rappers').update({
-      total_backers: totalBackers + 1,
-      total_backed: totalBacked + selectedLevel.amount,
-      hype_score: hyper + 1,
-    }).eq('id', rapper.id)
-
-    setMessage('✅ Tu soutiens maintenant ' + rapper.name + ' ! Badge : ' + badge.label)
+    setMessage('✅ Tu soutiens maintenant ' + rapper.name + ' ! Badge : ' + data.back.badge)
     setLoading(false)
     setTimeout(() => window.location.reload(), 1500)
   }
@@ -150,7 +152,7 @@ export default function BackRapperPage({ rapper, backs, goals }: { rapper: any, 
             <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '20px', overflow: 'hidden' }}>
               <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                 <h2 style={{ fontSize: '16px', fontWeight: 700 }}>🎯 Community Goals</h2>
-                <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)', marginTop: '4px' }}>Objectifs fixés par l'artiste</p>
+                <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)', marginTop: '4px' }}>Objectifs fix&eacute;s par l&apos;artiste</p>
               </div>
               {goals.map(goal => {
                 const progress = Math.min(100, Math.round((totalBackers / goal.target_backers) * 100))
@@ -240,7 +242,7 @@ export default function BackRapperPage({ rapper, backs, goals }: { rapper: any, 
               <>
                 <h3 style={{ fontSize: '20px', fontWeight: 900, marginBottom: '6px' }}>BACK {rapper.name.toUpperCase()}</h3>
                 <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', marginBottom: '24px' }}>
-                  Crois en lui avant tout le monde — gagne plus si t'avais raison
+                  Crois en lui avant tout le monde &mdash; gagne plus si t&apos;avais raison
                 </p>
 
                 {/* Niveaux */}

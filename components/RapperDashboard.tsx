@@ -195,7 +195,7 @@ export default function RapperDashboard({ rapper, bets: initialBets }: Props) {
             initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3 }}
             style={{ fontSize: '64px', fontWeight: 900, color: color, lineHeight: 1, textShadow: '0 0 40px ' + color + '88' }}
           >{rapper.activity_score}</motion.div>
-          <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', marginTop: '4px' }}>Score d'activité</p>
+          <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', marginTop: '4px' }}>Score d&apos;activit&eacute;</p>
         </div>
       </div>
 
