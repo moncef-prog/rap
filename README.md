@@ -1,4 +1,4 @@
-# Rap Map Morocco — 9ri9iBET
+# Rap Map Morocco 
 
 Plateforme interactive pour explorer la scène rap marocaine : carte en temps réel, système de paris et ligue fantasy.
 
